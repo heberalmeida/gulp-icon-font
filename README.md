@@ -1,4 +1,4 @@
-### Documentação - Utilizando ícones SVG em tempo real
+### Documentação - Gulp Icone SVG para Font
 
 #### Português
 
@@ -41,7 +41,7 @@ O arquivo `gulpfile.js` contém as tarefas necessárias para processar os ícone
 
 ---
 
-### Documentation - Using SVG Icons in Real-time
+### Documentation - Gulp Icon SVG to Font
 
 #### English
 

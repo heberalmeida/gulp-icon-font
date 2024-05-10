@@ -1,17 +1,19 @@
 {
   "name": "icon-project",
   "version": "1.0.0",
-  "description": "Projeto de ícones com Gulp",
+  "description": "Projeto de ícones SVG com Gulp",
   "main": "gulpfile.js",
+  "homepage": "https://heberalmeida.github.io/gulp-icon-font",
   "scripts": {
     "start": "gulp",
-    "watch": "gulp watch-icons"
+    "watch": "gulp watch-icons",
+    "deploy": "gh-pages -d dist"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/seuusuario/seuprojeto.git"
+    "url": "https://github.com/heberalmeida/gulp-icon-font.git"
   },
-  "author": "Seu Nome",
+  "author": "Heber Almeida",
   "license": "ISC",
   "dependencies": {
     "gulp": "^4.0.2",
@@ -25,6 +27,7 @@
   "devDependencies": {
     "browser-sync": "^3.0.2",
     "del": "^6.0.0",
+    "gh-pages": "^6.1.1",
     "node-notifier": "^10.0.0"
   }
 }

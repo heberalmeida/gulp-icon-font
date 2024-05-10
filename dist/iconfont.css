@@ -3,11 +3,11 @@ swfont Webfont
 */
 @font-face {
  font-family: 'swfont';
- src: url('swfont.eot?1715316702080');
- src: url('swfont.eot?#iefix-1715316702080') format('embedded-opentype'),
-  url('swfont.woff2?1715316702080') format('woff2'),
-  url('swfont.woff?1715316702080') format('woff'),
-  url('swfont.ttf?1715316702080') format('truetype');
+ src: url('swfont.eot?1715319029357');
+ src: url('swfont.eot?#iefix-1715319029357') format('embedded-opentype'),
+  url('swfont.woff2?1715319029357') format('woff2'),
+  url('swfont.woff?1715319029357') format('woff'),
+  url('swfont.ttf?1715319029357') format('truetype');
  font-weight: normal;
  font-style: normal;
 }

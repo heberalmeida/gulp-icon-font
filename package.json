@@ -1,0 +1,30 @@
+{
+  "name": "icon-project",
+  "version": "1.0.0",
+  "description": "Projeto de ícones com Gulp",
+  "main": "gulpfile.js",
+  "scripts": {
+    "start": "gulp",
+    "watch": "gulp watch-icons"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/seuusuario/seuprojeto.git"
+  },
+  "author": "Seu Nome",
+  "license": "ISC",
+  "dependencies": {
+    "gulp": "^4.0.2",
+    "gulp-consolidate": "^0.2.0",
+    "gulp-iconfont": "^10.0.1",
+    "gulp-load-plugins": "^2.0.6",
+    "gulp-rename": "^2.0.0",
+    "lodash": "^4.17.21",
+    "underscore": "^1.13.6"
+  },
+  "devDependencies": {
+    "browser-sync": "^3.0.2",
+    "del": "^6.0.0",
+    "node-notifier": "^10.0.0"
+  }
+}

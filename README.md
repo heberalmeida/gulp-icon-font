@@ -35,13 +35,18 @@ Este documento descreve como utilizar ícones SVG em tempo real em um projeto, u
 
 Você pode nomear os arquivos SVG utilizando colchetes `[ ]` e incluir tags ou palavras-chave para facilitar a localização dos ícones na documentação. Por exemplo, um ícone com o nome `icone[carro, transporte]` terá as tags `carro` e `transporte` associadas a ele.
 
+#### Demo
+
+Veja uma demonstração do projeto em funcionamento [aqui](https://heberalmeida.github.io/gulp-icon-font).
+
+
 #### Arquivo `gulpfile.js`
 
 O arquivo `gulpfile.js` contém as tarefas necessárias para processar os ícones SVG e incorporá-los ao projeto. Certifique-se de não alterar este arquivo, a menos que saiba o que está fazendo.
 
 ---
 
-### Documentation - Gulp Icon SVG to Font
+### Documentation - Gulp Icon SVG to    Font
 
 #### English
 
@@ -77,6 +82,11 @@ This document describes how to use SVG icons in real-time in a project, using Gu
 #### Customizing Icons
 
 You can name SVG files using brackets `[ ]` and include tags or keywords to facilitate locating the icons in the documentation. For example, an icon named `icon[car, transportation]` will have the tags `car` and `transportation` associated with it.
+
+#### Demo
+
+See a live demo of the project in action [here](https://heberalmeida.github.io/gulp-icon-font).
+
 
 #### `gulpfile.js` File
 

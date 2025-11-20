@@ -1,5 +1,6 @@
 const gulp = require("gulp");
 const fs = require("fs");
+const through2 = require("through2");
 const plug = require("gulp-load-plugins")(); // Carrega todos os plugins do Gulp
 const browserSync = require("browser-sync").create(); // Importa o BrowserSync
 
@@ -15,6 +16,8 @@ const icons = {
   formats: ["woff", "woff2"],
   json: [],
 };
+
+const emitManifest = process.argv.includes("--manifest");
 
 function icontags(file) {
   const path = file;
@@ -42,6 +45,32 @@ function saveJSON(obj, file, done) {
   fs.writeFile(path, json, done);
 }
 
+function validateSingleColor() {
+  return through2.obj(function (file, _, cb) {
+    if (file.isNull()) {
+      this.push(file);
+      return cb();
+    }
+
+    const content = file.contents.toString("utf8");
+    const matches = [...content.matchAll(/fill="([^"]+)"/gi)];
+    const colors = new Set(
+      matches
+        .map((m) => m[1])
+        .filter((c) => c && c.toLowerCase() !== "none" && c.toLowerCase() !== "currentcolor")
+    );
+
+    if (colors.size > 1) {
+      plug.util.log(
+        plug.util.colors.yellow(`Warning: ${file.relative} has multiple fill colors: ${[...colors].join(", ")}`)
+      );
+    }
+
+    this.push(file);
+    cb();
+  });
+}
+
 gulp.task("icondel", (done) => {
   fs.readdir("icons/svg/build", (e, files) => {
     if (!e && files.length)
@@ -56,6 +85,7 @@ gulp.task(
     icons.json = [];
     gulp
       .src(icons.src)
+      .pipe(validateSingleColor())
       .pipe(plug.rename(icontags))
       .pipe(gulp.dest("icons/svg/build"))
       .on("end", done);
@@ -112,8 +142,20 @@ gulp.task(
               .src(icons.vue)
               .pipe(gulp.dest(icons.dest))
               .on("end", () => {
-                saveJSON(icons.json, "iconfont", done);
-                browserSync.reload(); // Recarrega o BrowserSync após o término da tarefa
+                const totalSaves = emitManifest ? 2 : 1;
+                let completed = 0;
+                const finish = () => {
+                  completed += 1;
+                  if (completed >= totalSaves) {
+                    browserSync.reload(); // Recarrega o BrowserSync após o término da tarefa
+                    done();
+                  }
+                };
+
+                saveJSON(icons.json, "iconfont", finish);
+                if (emitManifest) {
+                  saveJSON(icons.json, "icon-manifest", finish);
+                }
               }); // Recarrega o BrowserSync após o término da tarefa
           });
       })

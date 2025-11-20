@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 
 <head>
   <meta charset="UTF-8" />
-  <title>Lista de Ícones</title>
+  <title>Icon Gallery</title>
   <link rel="stylesheet" href="iconfont.css" />
   <script src="vue.js"></script>
   <style>
@@ -12,88 +12,628 @@
     }
 
     body {
-      font-family: Helvetica, Verdana, sans-serif;
       margin: 0;
       padding: 0;
-      background-color: #f6f8fa;
+      font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      color: #111827;
+      background: radial-gradient(circle at 20% 20%, #eef2ff, #e0f2fe 40%, #f8fafc);
+    }
+
+    body.dark {
+      color: #e5e7eb;
+      background: radial-gradient(circle at 20% 20%, #0b1220, #0f172a 50%, #111827);
+    }
+
+    .page {
+      min-height: 100vh;
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+      padding: 32px 16px 48px;
     }
 
     .wrap {
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 20px;
+      width: 100%;
+      max-width: 1080px;
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 20px 45px rgba(15, 23, 42, 0.15);
+      padding: 32px 32px 40px;
+      border: 1px solid #e5e7eb;
+    }
+
+    body.dark .wrap {
+      background: #0f172a;
+      border-color: #1f2937;
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.5);
+    }
+
+    header {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 20px;
     }
 
     h1 {
-      margin-top: 0;
+      margin: 0;
+      font-size: 28px;
+      letter-spacing: -0.02em;
+    }
+
+    .subtitle {
+      color: #4b5563;
+      line-height: 1.5;
+    }
+
+    body.dark .subtitle {
+      color: #9ca3af;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .search {
+      position: relative;
+      flex: 1 1 260px;
+    }
+
+    .search input {
+      width: 100%;
+      padding: 12px 16px;
+      border-radius: 12px;
+      border: 1px solid #d1d5db;
+      font-size: 16px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    body.dark .search input {
+      background: #111827;
+      border-color: #1f2937;
+      color: #e5e7eb;
+    }
+
+    .search input:focus {
+      outline: none;
+      border-color: #6366f1;
+      box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+    }
+
+    .clear-btn {
+      border: none;
+      background: #f3f4f6;
+      color: #374151;
+      padding: 10px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+
+    .clear-btn:hover {
+      background: #e5e7eb;
+      transform: translateY(-1px);
+    }
+
+    body.dark .clear-btn {
+      background: #1f2937;
+      color: #e5e7eb;
+    }
+
+    body.dark .clear-btn:hover {
+      background: #273347;
+    }
+
+    .toggle-btn {
+      border: 1px solid #d1d5db;
+      background: #ffffff;
+      color: #111827;
+      padding: 10px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 700;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+      box-shadow: 0 4px 10px rgba(15, 23, 42, 0.12);
+    }
+
+    .toggle-btn:hover {
+      transform: translateY(-2px);
+      background: #f3f4f6;
+    }
+
+    body.dark .toggle-btn {
+      background: #111827;
+      border-color: #1f2937;
+      color: #e5e7eb;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+    }
+
+    body.dark .toggle-btn:hover {
+      background: #1f2937;
+    }
+
+    .stats {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      font-weight: 600;
+      color: #111827;
+    }
+
+    body.dark .stats {
+      color: #e5e7eb;
+    }
+
+    .badge {
+      background: #eef2ff;
+      color: #3730a3;
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-size: 14px;
+      border: 1px solid #e0e7ff;
+    }
+
+    body.dark .badge {
+      background: #1f2937;
+      border-color: #273347;
+      color: #c7d2fe;
+    }
+
+    .instruction {
+      margin: 12px 0 0;
+      padding: 12px 16px;
+      border-radius: 12px;
+      background: #f9fafb;
+      border: 1px dashed #e5e7eb;
+      color: #4b5563;
+    }
+
+    body.dark .instruction {
+      background: #111827;
+      border-color: #1f2937;
+      color: #9ca3af;
     }
 
     .glyphs-list {
-      margin: 10px 0 0 0;
+      margin: 20px 0 0;
       padding: 0;
       list-style: none;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      gap: 5px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 16px;
     }
 
     .glyphs-list li {
-      flex: 0 0 23%;
       padding: 16px;
-      text-align: center;
-      background-color: #fff;
-      border-radius: 5px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      text-align: left;
+      background: #ffffff;
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 10px 20px rgba(15, 23, 42, 0.05);
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, padding 0.2s ease;
+    }
+
+    body.dark .glyphs-list li {
+      background: #0b1220;
+      border-color: #1f2937;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.5);
     }
 
     .glyphs-list li:hover {
-      cursor: pointer;
-      background: #f0f0f0;
+      transform: translateY(-3px) scale(1.01);
+      box-shadow: 0 16px 32px rgba(15, 23, 42, 0.12);
+      border-color: #c7d2fe;
+      padding: 18px;
     }
 
-    .glyphs-list i {
-      font-size: 48px;
-      line-height: 1;
+    body.dark .glyphs-list li:hover {
+      box-shadow: 0 16px 32px rgba(0, 0, 0, 0.6);
+      border-color: #273347;
+    }
+
+    .glyph-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 64px;
+      height: 64px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #eef2ff, #e0f2fe);
+      color: #111827;
+      font-size: 38px;
+      margin-bottom: 12px;
     }
 
     .glyphs-list code {
-      display: block;
-      margin: 16px 0 0;
-      color: #666;
+      display: inline-block;
+      margin: 6px 0 10px;
+      color: #374151;
+      font-weight: 600;
+      background: #f3f4f6;
+      padding: 4px 8px;
+      border-radius: 8px;
     }
 
-    input {
+    body.dark .glyphs-list code {
+      background: #1f2937;
+      color: #e5e7eb;
+    }
+
+    .label {
+      font-size: 13px;
+      color: #6b7280;
+      margin-bottom: 4px;
       display: block;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      font-weight: 700;
+    }
+
+    body.dark .label {
+      color: #9ca3af;
+    }
+
+    .copy-input {
       width: 100%;
-      margin: 16px 0 0;
-      padding: 8px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      font-size: 16px;
-      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+      padding: 10px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 10px;
+      font-size: 15px;
+      background: #f9fafb;
+      margin-bottom: 8px;
+      color: #111827;
     }
 
-    .glyphs-list input:focus {
+    body.dark .copy-input {
+      background: #0f172a;
+      border-color: #1f2937;
+      color: #e5e7eb;
+    }
+
+    .copy-input:focus {
       outline: none;
-      border-color: #85b7d9;
-      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1), 0 0 0 2px #c8e1f9;
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+    }
+
+    .tag-list {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin: 8px 0 12px;
+    }
+
+    .tag {
+      padding: 4px 8px;
+      background: #eef2ff;
+      color: #4338ca;
+      border-radius: 999px;
+      font-size: 12px;
+      border: 1px solid #e0e7ff;
+      font-weight: 700;
+    }
+
+    body.dark .tag {
+      background: #111827;
+      border-color: #1f2937;
+      color: #c7d2fe;
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      flex: 1 1 140px;
+      border: none;
+      padding: 10px 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 700;
+      color: #111827;
+      background: #e0e7ff;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+      box-shadow: 0 4px 10px rgba(99, 102, 241, 0.18);
+    }
+
+    .btn.secondary {
+      background: #dbeafe;
+      box-shadow: 0 4px 10px rgba(59, 130, 246, 0.18);
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      background: #c7d2fe;
+    }
+
+    body.dark .btn {
+      background: #1f2937;
+      color: #e5e7eb;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+    }
+
+    body.dark .btn.secondary {
+      background: #0b1220;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    }
+
+    body.dark .btn:hover {
+      background: #273347;
+    }
+
+    .empty {
+      text-align: center;
+      padding: 32px;
+      background: #f9fafb;
+      border: 1px dashed #e5e7eb;
+      border-radius: 12px;
+      color: #6b7280;
+      margin-top: 16px;
+    }
+
+    body.dark .empty {
+      background: #0b1220;
+      border-color: #1f2937;
+      color: #9ca3af;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 18px;
+      right: 18px;
+      background: #111827;
+      color: #f9fafb;
+      padding: 12px 16px;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    .toast.active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 720px) {
+      .wrap {
+        padding: 24px 18px 28px;
+      }
+
+      .controls {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .clear-btn,
+      .btn {
+        width: 100%;
+      }
+
+      .glyphs-list {
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      }
+
+      .glyphs-list li {
+        padding: 14px;
+      }
+
+      .glyph-icon {
+        width: 56px;
+        height: 56px;
+        font-size: 32px;
+      }
+
+      header {
+        gap: 8px;
+      }
+
+      h1 {
+        font-size: 24px;
+      }
+
+      .subtitle {
+        font-size: 15px;
+      }
+    }
+
+    /* Live styling */
+    .wrap {
+      --icon-size: 38px;
+      --icon-color: #111827;
+    }
+
+    .glyph-icon i,
+    .glyphs-list i {
+      font-size: var(--icon-size);
+      color: var(--icon-color);
+    }
+
+    .control-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .pills {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .pill {
+      border: 1px solid #d1d5db;
+      background: #ffffff;
+      color: #111827;
+      border-radius: 999px;
+      padding: 8px 12px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 13px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .pill:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
+      border-color: #c7d2fe;
+    }
+
+    .pill.active {
+      background: #eef2ff;
+      border-color: #c7d2fe;
+      color: #1f2937;
+      box-shadow: 0 8px 18px rgba(99, 102, 241, 0.2);
+    }
+
+    body.dark .pill {
+      background: #0f172a;
+      border-color: #1f2937;
+      color: #e5e7eb;
+    }
+
+    body.dark .pill.active {
+      background: #1f2937;
+      border-color: #273347;
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.45);
+    }
+
+    .control-group label {
+      font-weight: 700;
+      font-size: 14px;
+      color: #374151;
+    }
+
+    body.dark .control-group label {
+      color: #e5e7eb;
+    }
+
+    .range-input {
+      flex: 1 1 180px;
+      accent-color: #6366f1;
+    }
+
+    .color-input {
+      width: 64px;
+      height: 40px;
+      border: 1px solid #d1d5db;
+      border-radius: 10px;
+      padding: 0;
+      background: transparent;
+    }
+
+    body.dark .color-input {
+      border-color: #1f2937;
+    }
+
+    .live-snippet {
+      margin-top: 8px;
+      font-size: 13px;
+      color: #6b7280;
+      word-break: break-all;
+    }
+
+    body.dark .live-snippet {
+      color: #9ca3af;
     }
   </style>
 </head>
 
-<body>
-  <div class="wrap" id="iconApp">
-    <h1>{{ fontName }} - Lista de Ícones</h1>
-    <input type="text" v-model="search" placeholder="Filtrar ícones..." />
+<body class="page">
+  <div class="wrap" id="iconApp" :style="{ '--icon-size': iconSize + 'px', '--icon-color': iconColor }">
+    <header>
+      <h1>{{ fontName }} Icon Gallery</h1>
+      <p class="subtitle">
+        Browse, search, and copy icon class names. Search works with class names, tags, or unicode code points.
+      </p>
+      <div class="controls">
+        <div class="search">
+          <input type="text" v-model="search" placeholder="Search icons by name, tag, or unicode…" />
+        </div>
+        <button class="clear-btn" v-if="search" @click="search = ''">Clear search</button>
+        <button class="toggle-btn" @click="toggleTheme">
+          {{ isDark ? 'Light mode' : 'Dark mode' }}
+        </button>
+        <div class="stats">
+          <span class="badge">Total: {{ icons.length }}</span>
+          <span class="badge">Visible: {{ filteredIcons.length }}</span>
+        </div>
+      </div>
+      <div class="instruction">
+        Tip: click "Copy class" to quickly use an icon in your markup. Tags help improve filtering — name SVGs like
+        <strong>icon[search, ui]</strong> to add tags automatically.
+      </div>
+      <div class="instruction">
+        Style hint: change size with CSS <code>font-size</code> and color with <code>color</code>.
+      </div>
+      <div class="instruction">
+        Live preview controls:
+        <div class="control-group">
+          <label for="sizeControl">Size: {{ iconSize }}px</label>
+          <input id="sizeControl" class="range-input" type="range" min="12" max="96" v-model.number="iconSize" />
+          <label for="colorControl">Color</label>
+          <input id="colorControl" class="color-input" type="color" v-model="iconColor" />
+        </div>
+        <div class="pills">
+          <button class="pill" :class="{ active: iconSize === 28 }" @click="iconSize = 28">Small</button>
+          <button class="pill" :class="{ active: iconSize === 38 }" @click="iconSize = 38">Medium</button>
+          <button class="pill" :class="{ active: iconSize === 52 }" @click="iconSize = 52">Large</button>
+          <button class="pill" :class="{ active: iconColor === '#2563eb' }" @click="iconColor = '#2563eb'">Blue</button>
+          <button class="pill" :class="{ active: iconColor === '#7c3aed' }" @click="iconColor = '#7c3aed'">Purple</button>
+          <button class="pill" :class="{ active: iconColor === '#f59e0b' }" @click="iconColor = '#f59e0b'">Amber</button>
+          <button class="pill" :class="{ active: iconColor === '#0ea5e9' }" @click="iconColor = '#0ea5e9'">Sky</button>
+          <button class="pill" :class="{ active: iconColor === '#111827' }" @click="iconColor = '#111827'">Default</button>
+        </div>
+        <div class="live-snippet">
+          Live snippet: <code>{{ liveSnippet }}</code>
+        </div>
+      </div>
+    </header>
+
     <ul class="glyphs-list">
       <li v-for="icon in filteredIcons" :key="icon.id">
-        <i :class="icon.className" :data-icon="'\\' + icon.code.toString(16)"></i>
-        <code>{{ '\\u' + icon.code.toString(16) }}</code>
-        <input type="text" :value="icon.className" />
-        <span v-if="icon.tags && icon.tags.length">Tags: {{ icon.tags.join(', ') }}</span>
+        <span class="glyph-icon">
+          <i :class="icon.className" :data-icon="'\\' + icon.code.toString(16)"></i>
+        </span>
+        <div>
+          <span class="label">Unicode</span>
+          <code>{{ '\\u' + icon.code.toString(16) }}</code>
+        </div>
+        <div>
+          <span class="label">Class name</span>
+          <input class="copy-input" type="text" :value="icon.className" readonly />
+        </div>
+        <div v-if="icon.tags && icon.tags.length" class="tag-list">
+          <span class="tag" v-for="tag in icon.tags" :key="tag">{{ tag }}</span>
+        </div>
+        <div class="actions">
+          <button class="btn" @click="copyToClipboard(icon.className, 'Class name copied')">Copy class</button>
+          <button class="btn secondary" @click="copyToClipboard('\\\\u' + icon.code.toString(16), 'Unicode copied')">Copy unicode</button>
+          <button class="btn" @click="copyAccessible(icon)">Copy accessible snippet</button>
+          <button class="btn secondary" @click="copyUsage(icon)">Copy usage</button>
+        </div>
       </li>
     </ul>
+
+    <div class="empty" v-if="!filteredIcons.length">
+      No icons match your search yet. Try another keyword or add more tags to your SVG filenames.
+    </div>
+
+    <div class="toast" :class="{ active: copiedMessage }">
+      {{ copiedMessage }}
+    </div>
   </div>
 
   <script>
@@ -101,10 +641,15 @@
       el: '#iconApp',
       data: {
         search: '',
-        icons: [], // Este array será preenchido dinamicamente
-        fontName: '<%= fontName %>'
+        icons: [],
+        fontName: '<%= fontName %>',
+        copiedMessage: '',
+        isDark: false,
+        iconSize: 38,
+        iconColor: '#111827'
       },
       mounted() {
+        this.initTheme();
         fetch('iconfont.json')
           .then(response => response.json())
           .then(data => {
@@ -113,13 +658,81 @@
       },
       computed: {
         filteredIcons() {
-          return this.icons.filter(icon =>
-            icon.tags.some(tag => tag.toLowerCase().includes(this.search.toLowerCase()))
-          );
+          const query = this.search.trim().toLowerCase();
+          if (!query) return this.icons;
+
+          return this.icons.filter(icon => {
+            const classMatch = icon.className && icon.className.toLowerCase().includes(query);
+            const tagMatch = Array.isArray(icon.tags) && icon.tags.some(tag => tag.toLowerCase().includes(query));
+            const code = icon.code ? icon.code.toString(16) : '';
+            const codeMatch = code.includes(query.replace('\\u', '').replace('u', ''));
+            return classMatch || tagMatch || codeMatch;
+          });
+        },
+        liveSnippet() {
+          const className = (this.filteredIcons[0] && this.filteredIcons[0].className) || 'swicon-sample';
+          return `<i class="${className}" style="font-size: ${this.iconSize}px; color: ${this.iconColor};"></i>`;
+        }
+      },
+      methods: {
+        initTheme() {
+          const saved = localStorage.getItem('iconGalleryTheme');
+          if (saved) {
+            this.applyTheme(saved === 'dark');
+            return;
+          }
+          const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+          this.applyTheme(prefersDark);
+        },
+        toggleTheme() {
+          this.applyTheme(!this.isDark);
+          localStorage.setItem('iconGalleryTheme', this.isDark ? 'dark' : 'light');
+        },
+        applyTheme(dark) {
+          this.isDark = dark;
+          document.body.classList.toggle('dark', dark);
+        },
+        buildAriaLabel(icon) {
+          if (Array.isArray(icon.tags) && icon.tags.length) {
+            return (icon.tags[0] + ' icon').trim();
+          }
+          return `${icon.id || icon.className || 'icon'}`.replace(/-/g, ' ') + ' icon';
+        },
+        copyAccessible(icon) {
+          const aria = this.buildAriaLabel(icon);
+          const snippet = `<i class="${icon.className}" role="img" aria-label="${aria}"></i>`;
+          this.copyToClipboard(snippet, 'Accessible snippet copied');
+        },
+        copyUsage(icon) {
+          const aria = this.buildAriaLabel(icon);
+          const snippet = `<i class="${icon.className}" role="img" aria-label="${aria}"></i>\n\n` +
+            `<style>\n.${icon.className} {\n  font-size: 24px;\n  color: #111827;\n}\n</style>`;
+          this.copyToClipboard(snippet, 'Usage example copied');
+        },
+        copyToClipboard(value, message) {
+          if (!value) return;
+          const text = value.toString();
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text);
+          } else {
+            const temp = document.createElement('textarea');
+            temp.value = text;
+            document.body.appendChild(temp);
+            temp.select();
+            document.execCommand('copy');
+            document.body.removeChild(temp);
+          }
+          this.showToast(message);
+        },
+        showToast(message) {
+          this.copiedMessage = message;
+          clearTimeout(this._toastTimer);
+          this._toastTimer = setTimeout(() => {
+            this.copiedMessage = '';
+          }, 1800);
         }
       }
     });
-
   </script>
 </body>
 

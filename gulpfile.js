@@ -7,19 +7,53 @@ const del = require("del");
 const plug = require("gulp-load-plugins")();
 const browserSync = require("browser-sync").create();
 
-const BUILD_DIR = "icons/svg/build";
-const CODEPOINTS_PATH = "icons/codepoints.json";
-const START_CODEPOINT = 0xea01;
+function loadConfig() {
+  const defaults = {
+    pref: "swicon",
+    name: "swfont",
+    src: "icons/svg/*.svg",
+    dest: "dist",
+    formats: ["woff", "woff2"],
+    startCodepoint: 0xea01,
+    codepointsPath: "icons/codepoints.json",
+    buildDir: "icons/svg/build",
+    cssTemplate: "icons/iconfont.css",
+    htmlTemplate: "icons/index.html",
+    maskTemplate: "icons/iconfont.mask.css",
+    maskCss: true,
+    components: true,
+    zip: true,
+    sprite: true,
+    glyphHashesPath: "icons/glyph-hashes.json",
+  };
+  const configPath = path.join(process.cwd(), "iconfont.config.js");
+  if (!fs.existsSync(configPath)) return defaults;
+  try {
+    // eslint-disable-next-line import/no-dynamic-require, global-require
+    const user = require(configPath);
+    return { ...defaults, ...(user && typeof user === "object" ? user : {}) };
+  } catch (err) {
+    console.warn("Could not load iconfont.config.js:", err.message);
+    return defaults;
+  }
+}
+
+const config = loadConfig();
+const BUILD_DIR = config.buildDir;
+const CODEPOINTS_PATH = config.codepointsPath;
+const START_CODEPOINT = config.startCodepoint;
+const GLYPH_HASHES_PATH = config.glyphHashesPath;
 
 const icons = {
-  pref: "swicon",
-  name: "swfont",
-  src: "icons/svg/*.svg",
+  pref: config.pref,
+  name: config.name,
+  src: config.src,
   svg: `${BUILD_DIR}/*.svg`,
-  css: "icons/iconfont.css",
-  html: "icons/index.html",
-  dest: "dist",
-  formats: ["woff", "woff2"],
+  css: config.cssTemplate,
+  html: config.htmlTemplate,
+  mask: config.maskTemplate,
+  dest: config.dest,
+  formats: config.formats,
   json: [],
 };
 
@@ -191,7 +225,77 @@ function copySvgAssets(files) {
   });
 }
 
+function writeGlyphDiff(buildFiles) {
+  const previous = readJsonSafe(GLYPH_HASHES_PATH, {});
+  const next = {};
+  const added = [];
+  const changed = [];
+  const removed = [];
+
+  const prevDir = path.join(icons.dest, "diff", "before");
+  ensureDir(prevDir);
+
+  buildFiles.forEach((filePath) => {
+    const id = path.basename(filePath, ".svg");
+    const raw = fs.readFileSync(filePath, "utf8");
+    const hash = contentHash(raw);
+    next[id] = hash;
+    const destSvg = path.join(icons.dest, "svg", `${id}.svg`);
+
+    if (!previous[id]) {
+      added.push(id);
+    } else if (previous[id] !== hash) {
+      changed.push(id);
+      if (fs.existsSync(destSvg)) {
+        fs.copyFileSync(destSvg, path.join(prevDir, `${id}.svg`));
+      }
+    }
+  });
+
+  Object.keys(previous).forEach((id) => {
+    if (!next[id]) removed.push(id);
+  });
+
+  writeJson(GLYPH_HASHES_PATH, next);
+  writeJson(path.join(icons.dest, "glyph-diff.json"), {
+    generatedAt: new Date().toISOString(),
+    added: added.sort(),
+    removed: removed.sort(),
+    changed: changed.sort(),
+    unchanged: Object.keys(next).filter((id) => previous[id] === next[id]).length,
+    total: Object.keys(next).length,
+  });
+}
+
+function writeMaskCss(glyphs, options) {
+  if (!config.maskCss) return Promise.resolve();
+  const maskStream = gulp
+    .src(icons.mask)
+    .pipe(
+      plug.consolidate("underscore", {
+        glyphs,
+        fontName: options.fontName,
+        className: options.className,
+      })
+    )
+    .pipe(gulp.dest(icons.dest));
+  return streamToPromise(maskStream);
+}
+
+function copyStaticGalleryAssets() {
+  const files = [
+    "icons/manifest.webmanifest",
+    "icons/pwa-icon.svg",
+    "icons/sw.js",
+  ];
+  files.forEach((rel) => {
+    if (!fs.existsSync(rel)) return;
+    fs.copyFileSync(rel, path.join(icons.dest, path.basename(rel)));
+  });
+}
+
 function writeComponents(meta) {
+  if (!config.components) return;
   const outDir = path.join(icons.dest, "components");
   ensureDir(outDir);
 
@@ -300,6 +404,7 @@ Also load \`../iconfont.css\` (or the SVG sprite \`../${icons.name}.sprite.svg\`
 }
 
 function writeZip() {
+  if (!config.zip) return Promise.resolve();
   return new Promise((resolve, reject) => {
     const archiver = require("archiver");
     const output = fs.createWriteStream(path.join(icons.dest, `${icons.name}.zip`));
@@ -309,16 +414,25 @@ function writeZip() {
     archive.on("error", reject);
     archive.pipe(output);
 
-    archive.file(path.join(icons.dest, "iconfont.css"), { name: "iconfont.css" });
-    archive.file(path.join(icons.dest, "iconfont.json"), { name: "iconfont.json" });
-    archive.file(path.join(icons.dest, "codepoints.json"), { name: "codepoints.json" });
-    archive.file(path.join(icons.dest, `${icons.name}.woff`), { name: `${icons.name}.woff` });
-    archive.file(path.join(icons.dest, `${icons.name}.woff2`), { name: `${icons.name}.woff2` });
-    archive.file(path.join(icons.dest, `${icons.name}.sprite.svg`), {
-      name: `${icons.name}.sprite.svg`,
-    });
-    archive.directory(path.join(icons.dest, "svg"), "svg");
-    archive.directory(path.join(icons.dest, "components"), "components");
+    const maybeFile = (rel, name) => {
+      const full = path.join(icons.dest, rel);
+      if (fs.existsSync(full)) archive.file(full, { name: name || rel });
+    };
+
+    maybeFile("iconfont.css");
+    maybeFile("iconfont.mask.css");
+    maybeFile("iconfont.json");
+    maybeFile("codepoints.json");
+    maybeFile("glyph-diff.json");
+    maybeFile(`${icons.name}.woff`);
+    maybeFile(`${icons.name}.woff2`);
+    if (config.sprite) maybeFile(`${icons.name}.sprite.svg`);
+    if (fs.existsSync(path.join(icons.dest, "svg"))) {
+      archive.directory(path.join(icons.dest, "svg"), "svg");
+    }
+    if (config.components && fs.existsSync(path.join(icons.dest, "components"))) {
+      archive.directory(path.join(icons.dest, "components"), "components");
+    }
     archive.finalize();
   });
 }
@@ -470,13 +584,16 @@ gulp.task(
               )
               .pipe(gulp.dest(icons.dest));
 
-            writeSprite(buildFiles);
+            writeGlyphDiff(buildFiles);
+            if (config.sprite) writeSprite(buildFiles);
             copySvgAssets(buildFiles);
             writeComponents(icons.json);
+            copyStaticGalleryAssets();
 
             return Promise.all([
               streamToPromise(cssStream),
               streamToPromise(htmlStream),
+              writeMaskCss(glyphs, options),
               saveJSON(icons.json, "iconfont"),
               emitManifest ? saveJSON(icons.json, "icon-manifest") : Promise.resolve(),
               saveJSON(codepoints, "codepoints"),
@@ -517,7 +634,19 @@ gulp.task("reload", (done) => {
 });
 
 gulp.task("watch-icons", () => {
-  gulp.watch([icons.src, icons.html, icons.css], gulp.series("build"));
+  gulp.watch(
+    [
+      icons.src,
+      icons.html,
+      icons.css,
+      icons.mask,
+      "iconfont.config.js",
+      "icons/manifest.webmanifest",
+      "icons/sw.js",
+      "icons/pwa-icon.svg",
+    ],
+    gulp.series("build")
+  );
 });
 
 gulp.task("dev", gulp.series("build", gulp.parallel("watch-icons", "serve")));

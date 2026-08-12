@@ -1,0 +1,21 @@
+/* Auto-generated CSS mask icons — multi-color via background-color / currentColor */
+[class^='<%= className %>-mask-'],
+[class*=' <%= className %>-mask-'] {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  vertical-align: middle;
+  background-color: currentColor;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+}
+<% _.each(glyphs, function(icon){ %>
+.<%= className %>-mask-<%= icon.name %> {
+  -webkit-mask-image: url('svg/<%= icon.name %>.svg');
+  mask-image: url('svg/<%= icon.name %>.svg');
+}
+<% }) %>

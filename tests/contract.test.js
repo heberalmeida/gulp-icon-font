@@ -29,6 +29,12 @@ iconfont.forEach((icon) => {
 assert.ok(fs.existsSync(path.join(root, "dist/swfont.sprite.svg")), "sprite missing");
 assert.ok(fs.existsSync(path.join(root, "dist/swfont.zip")), "zip missing");
 assert.ok(fs.existsSync(path.join(root, "dist/components/react.jsx")), "react components missing");
+assert.ok(fs.existsSync(path.join(root, "dist/iconfont.mask.css")), "mask css missing");
+assert.ok(fs.existsSync(path.join(root, "dist/glyph-diff.json")), "glyph-diff missing");
+assert.ok(fs.existsSync(path.join(root, "dist/manifest.webmanifest")), "PWA manifest missing");
+assert.ok(fs.existsSync(path.join(root, "dist/sw.js")), "service worker missing");
+assert.ok(fs.existsSync(path.join(root, "iconfont.config.js")), "iconfont.config.js missing");
+assert.ok(fs.existsSync(path.join(root, "bin/swfont.js")), "swfont CLI missing");
 
 const current = iconfont
   .map((icon) => ({ id: icon.id, className: icon.className, code: icon.code }))

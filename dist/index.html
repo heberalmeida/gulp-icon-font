@@ -16,7 +16,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="iconfont.css" />
-  <script src="vue.js"></script>
+  <script src="https://unpkg.com/vue@3.5.13/dist/vue.global.prod.js"></script>
   <style>
     :root {
       --bg: #edf2ef;
@@ -765,6 +765,10 @@
       font-size: 11px;
     }
 
+    .actions .btn.wide {
+      grid-column: 1 / -1;
+    }
+
     .empty {
       text-align: center;
       padding: 56px 20px;
@@ -861,6 +865,79 @@
         padding: 8px 6px;
       }
     }
+
+    .drawer-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 35;
+      background: rgba(8, 17, 14, 0.4);
+    }
+
+    .drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      z-index: 36;
+      width: min(420px, 100%);
+      height: 100%;
+      background: var(--panel-raised);
+      border-left: 1px solid var(--line);
+      box-shadow: var(--shadow);
+      padding: 20px;
+      display: grid;
+      gap: 14px;
+      align-content: start;
+      overflow: auto;
+      transform: translateX(100%);
+      transition: transform 0.28s var(--ease);
+    }
+
+    .drawer.open { transform: translateX(0); }
+
+    .drawer-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .drawer-preview {
+      display: grid;
+      place-items: center;
+      height: 160px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      overflow: hidden;
+    }
+
+    .drawer-preview i {
+      font-size: 72px;
+      color: var(--icon-color);
+    }
+
+    .drawer-preview img,
+    .drawer-preview object {
+      width: 96px;
+      height: 96px;
+    }
+
+    .drawer-grid {
+      display: grid;
+      gap: 8px;
+    }
+
+    .drawer-grid code {
+      display: block;
+      word-break: break-all;
+    }
+
+    .drawer-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
   </style>
 </head>
 
@@ -883,6 +960,7 @@
       </div>
         <div class="top-actions">
         <span class="badge"><span class="dot"></span> live</span>
+        <a class="btn ghost" href="swfont.zip" download="swfont.zip">Export ZIP</a>
         <button class="btn ghost" type="button" @click="openPalette" title="Command palette">
           Search <span class="kbd">⌘K</span>
         </button>
@@ -1057,6 +1135,7 @@
               </button>
               <button class="btn" type="button" @click="copyAccessible(icon)">Accessible</button>
               <button class="btn" type="button" @click="copyUsage(icon)">Usage</button>
+              <button class="btn wide" type="button" @click="openDrawer(icon)">Details</button>
             </div>
           </li>
         </ul>
@@ -1073,6 +1152,46 @@
       </main>
     </div>
 
+
+
+    <div class="drawer-backdrop" v-if="drawerOpen" @click="closeDrawer"></div>
+    <aside class="drawer" :class="{ open: drawerOpen }" v-if="drawerIcon" aria-label="Icon details">
+      <div class="drawer-head">
+        <h2 class="panel-title" style="margin:0">Details</h2>
+        <button class="btn tiny" type="button" @click="closeDrawer">Close</button>
+      </div>
+      <div class="drawer-preview">
+        <i :class="drawerIcon.className" aria-hidden="true"></i>
+      </div>
+      <div class="drawer-grid">
+        <div>
+          <div class="panel-title">Class</div>
+          <code>{{ drawerIcon.className }}</code>
+        </div>
+        <div>
+          <div class="panel-title">Unicode</div>
+          <code>\\u{{ drawerIcon.code.toString(16) }}</code>
+        </div>
+        <div>
+          <div class="panel-title">Tags</div>
+          <div class="tags">
+            <button class="tag" type="button" v-for="tag in drawerIcon.tags" :key="tag" @click="filterByTag(tag); closeDrawer()">{{ tag }}</button>
+          </div>
+        </div>
+        <div>
+          <div class="panel-title">Sprite</div>
+          <code>&lt;svg&gt;&lt;use href="swfont.sprite.svg#{{ drawerIcon.className }}"&gt;&lt;/use&gt;&lt;/svg&gt;</code>
+        </div>
+      </div>
+      <div class="drawer-actions">
+        <button class="btn primary" type="button" @click="copyToClipboard(drawerIcon.className, 'Class copied')">Copy class</button>
+        <a class="btn" :href="'svg/' + drawerIcon.id + '.svg'" :download="drawerIcon.id + '.svg'">Download SVG</a>
+        <button class="btn" type="button" @click="copyAccessible(drawerIcon)">Accessible</button>
+        <button class="btn" type="button" @click="copyReact(drawerIcon)">Copy React</button>
+        <button class="btn" type="button" @click="copySprite(drawerIcon)">Copy sprite</button>
+        <button class="btn" type="button" @click="copyUsage(drawerIcon)">Usage</button>
+      </div>
+    </aside>
 
     <div
       class="palette-backdrop"
@@ -1116,9 +1235,10 @@
   </div>
 
   <script>
-    new Vue({
-      el: '#iconApp',
-      data: {
+    const { createApp } = Vue;
+    createApp({
+      data() {
+        return {
         search: '',
         icons: [],
         fontName: 'swfont',
@@ -1143,7 +1263,10 @@
         paletteOpen: false,
         paletteQuery: '',
         paletteIndex: 0,
-        themeMedia: null
+        themeMedia: null,
+          drawerOpen: false,
+          drawerIcon: null
+        };
       },
       mounted() {
         this.restorePrefs();
@@ -1160,7 +1283,7 @@
           })
           .catch(() => this.showToast('Could not load iconfont.json', true));
       },
-      beforeDestroy() {
+      beforeUnmount() {
         window.removeEventListener('keydown', this.onGlobalKeydown);
         if (this.themeMedia) this.themeMedia.removeEventListener('change', this.onSystemThemeChange);
       },
@@ -1328,8 +1451,28 @@
           this.search = '';
           this.closePalette();
         },
+        openDrawer(icon) {
+          this.drawerIcon = icon;
+          this.drawerOpen = true;
+          this.selectedId = icon.id;
+        },
+        closeDrawer() {
+          this.drawerOpen = false;
+        },
+        copyReact(icon) {
+          const comp = icon.id.split('-').map((p) => p.charAt(0).toUpperCase() + p.slice(1)).join('');
+          this.copyToClipboard('<Icon' + comp + ' aria-label="' + this.buildAriaLabel(icon) + '" />', 'React snippet copied');
+        },
+        copySprite(icon) {
+          const snippet = '<svg aria-hidden="true"><use href="swfont.sprite.svg#' + icon.className + '"></use></svg>';
+          this.copyToClipboard(snippet, 'Sprite snippet copied');
+        },
         onGlobalKeydown(event) {
           const key = event.key.toLowerCase();
+          if (event.key === 'Escape') {
+            if (this.paletteOpen) this.closePalette();
+            if (this.drawerOpen) this.closeDrawer();
+          }
           if ((event.metaKey || event.ctrlKey) && key === 'k') {
             event.preventDefault();
             if (this.paletteOpen) this.closePalette();
@@ -1439,7 +1582,7 @@
           this._toastTimer = setTimeout(() => { this.copiedMessage = ''; this.toastError = false; }, 1800);
         }
       }
-    });
+    }).mount('#iconApp');
   </script>
 </body>
 

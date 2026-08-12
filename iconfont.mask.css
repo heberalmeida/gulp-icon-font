@@ -1,0 +1,60 @@
+/* Auto-generated CSS mask icons — multi-color via background-color / currentColor */
+[class^='swicon-mask-'],
+[class*=' swicon-mask-'] {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  vertical-align: middle;
+  background-color: currentColor;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+}
+
+.swicon-mask-fita-de-bookmark {
+  -webkit-mask-image: url('svg/fita-de-bookmark.svg');
+  mask-image: url('svg/fita-de-bookmark.svg');
+}
+
+.swicon-mask-locked {
+  -webkit-mask-image: url('svg/locked.svg');
+  mask-image: url('svg/locked.svg');
+}
+
+.swicon-mask-multiple-users-silhouette {
+  -webkit-mask-image: url('svg/multiple-users-silhouette.svg');
+  mask-image: url('svg/multiple-users-silhouette.svg');
+}
+
+.swicon-mask-partilhar {
+  -webkit-mask-image: url('svg/partilhar.svg');
+  mask-image: url('svg/partilhar.svg');
+}
+
+.swicon-mask-reiniciar {
+  -webkit-mask-image: url('svg/reiniciar.svg');
+  mask-image: url('svg/reiniciar.svg');
+}
+
+.swicon-mask-shield {
+  -webkit-mask-image: url('svg/shield.svg');
+  mask-image: url('svg/shield.svg');
+}
+
+.swicon-mask-snow-alt {
+  -webkit-mask-image: url('svg/snow-alt.svg');
+  mask-image: url('svg/snow-alt.svg');
+}
+
+.swicon-mask-suporte-1 {
+  -webkit-mask-image: url('svg/suporte-1.svg');
+  mask-image: url('svg/suporte-1.svg');
+}
+
+.swicon-mask-users {
+  -webkit-mask-image: url('svg/users.svg');
+  mask-image: url('svg/users.svg');
+}

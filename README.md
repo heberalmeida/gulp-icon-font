@@ -54,15 +54,24 @@ yarn install
 ## Local usage
 
 ```bash
-gulp          # build + watch + BrowserSync (serves dist/)
-yarn watch    # watcher only
+yarn build     # one-shot font + gallery build into dist/
+yarn dev       # build + watch + BrowserSync
+yarn watch     # watcher only
+yarn deploy    # publish dist/ to GitHub Pages
 ```
 
 Typical flow:
 
-1. Run `gulp`.
-2. Add/edit SVGs in `icons/svg/`.
-3. The gallery refreshes automatically — search and copy classes.
+1. Run `yarn dev` (or `gulp`).
+2. Add/edit SVGs in `icons/svg/`. Optional tags: `name[tag1, tag2].svg`.
+3. The gallery refreshes — search, select, ⌘K palette, copy classes.
+
+Gallery extras:
+
+- Deep links: `?icon=shield&size=40&color=%230b7a6c`
+- Stable codepoints stored in `icons/codepoints.json`
+- Strict validation: `npx gulp build --strict` (or `yarn build -- --strict`)
+
 
 ### Use in your project
 

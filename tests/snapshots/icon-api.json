@@ -1,0 +1,47 @@
+[
+  {
+    "id": "fita-de-bookmark",
+    "className": "swicon-fita-de-bookmark",
+    "code": 59905
+  },
+  {
+    "id": "locked",
+    "className": "swicon-locked",
+    "code": 59906
+  },
+  {
+    "id": "multiple-users-silhouette",
+    "className": "swicon-multiple-users-silhouette",
+    "code": 59907
+  },
+  {
+    "id": "partilhar",
+    "className": "swicon-partilhar",
+    "code": 59908
+  },
+  {
+    "id": "reiniciar",
+    "className": "swicon-reiniciar",
+    "code": 59909
+  },
+  {
+    "id": "shield",
+    "className": "swicon-shield",
+    "code": 59910
+  },
+  {
+    "id": "snow-alt",
+    "className": "swicon-snow-alt",
+    "code": 59911
+  },
+  {
+    "id": "suporte-1",
+    "className": "swicon-suporte-1",
+    "code": 59912
+  },
+  {
+    "id": "users",
+    "className": "swicon-users",
+    "code": 59913
+  }
+]

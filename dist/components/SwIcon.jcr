@@ -1,0 +1,34 @@
+import { swIconClass } from './jacare.js'
+
+export <contract>
+  props: {
+    name: { type: 'string', required: true }
+    label: { type: 'string', default: '' }
+    size: { type: 'number', default: 24 }
+    color: { type: 'string', default: 'currentColor' }
+  }
+</contract>
+
+function read(value) {
+  return typeof value === 'function' ? value() : value
+}
+
+export <view>
+  <i
+    class=${() => swIconClass(read(name))}
+    style---size=${() => `${read(size)}px`}
+    style---color=${() => read(color)}
+    role="img"
+    aria-label=${() => read(label) || read(name)}
+  ></i>
+</view>
+
+export <style>
+i[class^='swicon-'] {
+  font-size: var(--size, 24px);
+  color: var(--color, currentColor);
+  line-height: 1;
+  display: inline-block;
+  vertical-align: middle;
+}
+</style>

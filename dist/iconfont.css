@@ -3,13 +3,12 @@ swfont Webfont
 */
 @font-face {
  font-family: 'swfont';
- src: url('swfont.eot?1786495361138');
- src: url('swfont.eot?#iefix-1786495361138') format('embedded-opentype'),
-  url('swfont.woff2?1786495361138') format('woff2'),
-  url('swfont.woff?1786495361138') format('woff'),
-  url('swfont.ttf?1786495361138') format('truetype');
+ src:
+  url('swfont.woff2?05addbbd95') format('woff2'),
+  url('swfont.woff?05addbbd95') format('woff');
  font-weight: normal;
  font-style: normal;
+ font-display: swap;
 }
 
 [class^='swicon-']:before,
@@ -33,35 +32,35 @@ swfont Webfont
 Glyphs list
 */
 
-.swicon-icons8-fita-de-bookmark:before {
+.swicon-fita-de-bookmark:before {
  content: '\ea01';
 }
 
-.swicon-icons8-partilhar:before {
+.swicon-locked:before {
  content: '\ea02';
 }
 
-.swicon-icons8-reiniciar:before {
+.swicon-multiple-users-silhouette:before {
  content: '\ea03';
 }
 
-.swicon-icons8-suporte-1:before {
+.swicon-partilhar:before {
  content: '\ea04';
 }
 
-.swicon-locked:before {
+.swicon-reiniciar:before {
  content: '\ea05';
 }
 
-.swicon-multiple-users-silhouette:before {
+.swicon-shield:before {
  content: '\ea06';
 }
 
-.swicon-shield:before {
+.swicon-snow-alt:before {
  content: '\ea07';
 }
 
-.swicon-snow-alt-svgrepo-com:before {
+.swicon-suporte-1:before {
  content: '\ea08';
 }
 

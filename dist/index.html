@@ -5,7 +5,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="description" content="Interactive swfont icon gallery — search, preview, and copy class names." />
+  <meta name="theme-color" content="#0b7a6c" />
+  <meta property="og:title" content="swfont — Icon Gallery" />
+  <meta property="og:description" content="SVG to icon font pipeline with live search, preview, and copy-ready snippets." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://heberalmeida.github.io/gulp-icon-font/" />
   <title>swfont — Icon Gallery</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%230b7a6c'/%3E%3Ctext x='32' y='42' text-anchor='middle' font-family='system-ui,sans-serif' font-size='22' font-weight='700' fill='white'%3Esw%3C/text%3E%3C/svg%3E" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -26,10 +32,8 @@
       --accent-soft: #d4f3ec;
       --accent-ink: #0a5c52;
       --glow: rgba(11, 122, 108, 0.16);
-      --danger-soft: #fee2e2;
       --shadow: 0 1px 0 rgba(16, 25, 22, 0.04), 0 18px 40px rgba(16, 25, 22, 0.08);
       --radius: 20px;
-      --radius-sm: 12px;
       --icon-size: 40px;
       --icon-color: #101916;
       --mono: "IBM Plex Mono", ui-monospace, monospace;
@@ -64,12 +68,29 @@
       font-family: var(--sans);
       color: var(--ink);
       background:
-        radial-gradient(ellipse 70% 45% at 0% 0%, color-mix(in srgb, var(--accent) 18%, transparent), transparent 55%),
+        radial-gradient(ellipse 70% 45% at 0% 0%, rgba(11, 122, 108, 0.16), transparent 55%),
         radial-gradient(ellipse 55% 40% at 100% 0%, var(--bg-deep), transparent 50%),
         linear-gradient(180deg, var(--bg), var(--bg));
     }
 
+    @supports (background: color-mix(in srgb, white 50%, black)) {
+      body {
+        background:
+          radial-gradient(ellipse 70% 45% at 0% 0%, color-mix(in srgb, var(--accent) 18%, transparent), transparent 55%),
+          radial-gradient(ellipse 55% 40% at 100% 0%, var(--bg-deep), transparent 50%),
+          linear-gradient(180deg, var(--bg), var(--bg));
+      }
+    }
+
     button, input { font: inherit; color: inherit; }
+
+    button:focus-visible,
+    input:focus-visible,
+    .card:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
     code {
       font-family: var(--mono);
       font-size: 0.92em;
@@ -83,11 +104,8 @@
       width: min(1280px, calc(100% - 28px));
       margin: 0 auto;
       padding: 20px 0 56px;
-      --icon-size: 40px;
-      --icon-color: #101916;
     }
 
-    /* Top bar */
     .topbar {
       display: flex;
       align-items: center;
@@ -154,11 +172,15 @@
       padding: 8px 12px;
       border-radius: 999px;
       border: 1px solid var(--line);
-      background: color-mix(in srgb, var(--panel-raised) 84%, transparent);
+      background: rgba(255, 255, 255, 0.72);
       backdrop-filter: blur(10px);
       font-size: 12px;
       font-weight: 600;
       color: var(--muted);
+    }
+
+    body.dark .badge {
+      background: rgba(19, 34, 28, 0.72);
     }
 
     .badge .dot {
@@ -180,7 +202,6 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* Layout */
     .layout {
       display: grid;
       grid-template-columns: 300px minmax(0, 1fr);
@@ -192,9 +213,13 @@
     .panel {
       border: 1px solid var(--line);
       border-radius: var(--radius);
-      background: color-mix(in srgb, var(--panel) 88%, transparent);
+      background: rgba(247, 250, 248, 0.9);
       backdrop-filter: blur(16px);
       box-shadow: var(--shadow);
+    }
+
+    body.dark .panel {
+      background: rgba(15, 26, 22, 0.9);
     }
 
     .sidebar {
@@ -217,12 +242,10 @@
     .preview-box {
       display: grid;
       place-items: center;
-      min-height: 128px;
+      height: 148px;
       border-radius: 16px;
       border: 1px solid var(--line);
-      background:
-        linear-gradient(160deg, var(--accent-soft), transparent 55%),
-        var(--panel-raised);
+      background: var(--preview-bg, linear-gradient(160deg, var(--accent-soft), transparent 55%), var(--panel-raised));
       position: relative;
       overflow: hidden;
     }
@@ -242,15 +265,32 @@
     .preview-box i {
       position: relative;
       z-index: 1;
-      font-size: var(--icon-size);
+      /* Cap visual size so large slider values don't blow the panel */
+      font-size: min(var(--icon-size), 96px);
       color: var(--icon-color);
+      line-height: 1;
+      max-width: 100%;
+      max-height: 100%;
+      overflow: hidden;
       transition: font-size 0.2s var(--ease), color 0.2s var(--ease);
     }
 
-    .field {
-      display: grid;
-      gap: 8px;
+    .preview-name {
+      text-align: center;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--muted);
+      word-break: break-all;
     }
+
+    .hint {
+      margin: 0;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .field { display: grid; gap: 8px; }
 
     .field-row {
       display: flex;
@@ -329,14 +369,11 @@
 
     .chip.active {
       background: var(--accent-soft);
-      border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+      border-color: var(--accent);
       color: var(--accent-ink);
     }
 
-    .snippet {
-      display: grid;
-      gap: 8px;
-    }
+    .snippet { display: grid; gap: 8px; }
 
     .snippet pre {
       margin: 0;
@@ -368,7 +405,6 @@
       color: var(--muted);
     }
 
-    /* Main */
     .main {
       display: grid;
       gap: 14px;
@@ -458,9 +494,7 @@
 
     body:not(.dark) .btn.primary { color: #fff; }
 
-    .btn.ghost {
-      background: transparent;
-    }
+    .btn.ghost { background: transparent; }
 
     .btn.tiny {
       padding: 8px 10px;
@@ -477,6 +511,158 @@
       gap: 12px;
     }
 
+    .app.compact .grid {
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 8px;
+    }
+
+    .app.compact .glyph { height: 72px; }
+    .app.compact .actions { display: none; }
+    .app.compact .card { padding: 10px; gap: 8px; }
+
+    .select-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .check {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--accent);
+    }
+
+    .toolbar-tools {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .select {
+      border: 1px solid var(--line);
+      background: var(--panel-raised);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .contrast-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .swatch {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      border: 1px solid var(--line-strong);
+      cursor: pointer;
+      padding: 0;
+    }
+
+    .swatch.active {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .kbd {
+      font-family: var(--mono);
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 6px;
+      border: 1px solid var(--line);
+      background: var(--panel-raised);
+      color: var(--muted);
+    }
+
+    .palette-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 40;
+      background: rgba(8, 17, 14, 0.45);
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 12vh 16px 16px;
+    }
+
+    .palette {
+      width: min(560px, 100%);
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: var(--panel-raised);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .palette input {
+      width: 100%;
+      border: 0;
+      border-bottom: 1px solid var(--line);
+      padding: 16px 18px;
+      font-size: 16px;
+      background: transparent;
+      outline: none;
+    }
+
+    .palette-list {
+      list-style: none;
+      margin: 0;
+      padding: 8px;
+      max-height: 360px;
+      overflow: auto;
+    }
+
+    .palette-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+
+    .palette-item.active,
+    .palette-item:hover {
+      background: var(--accent-soft);
+    }
+
+    .palette-item i {
+      font-size: 22px;
+      color: var(--icon-color);
+      width: 28px;
+      text-align: center;
+    }
+
+    .palette-meta {
+      min-width: 0;
+      display: grid;
+      gap: 2px;
+    }
+
+    .palette-meta strong {
+      font-size: 13px;
+      font-family: var(--mono);
+      font-weight: 500;
+      word-break: break-all;
+    }
+
+    .palette-meta span {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .palette-hint {
+      padding: 10px 16px 14px;
+      font-size: 12px;
+      color: var(--muted);
+      border-top: 1px solid var(--line);
+    }
+
     .card {
       display: flex;
       flex-direction: column;
@@ -487,13 +673,21 @@
       background: var(--panel-raised);
       transition: transform 0.22s var(--ease), border-color 0.22s ease, box-shadow 0.22s ease;
       min-width: 0;
+      cursor: pointer;
     }
 
     .card:hover,
-    .card:focus-within {
+    .card:focus-within,
+    .card.selected {
       transform: translateY(-3px);
-      border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
+      border-color: var(--accent);
       box-shadow: 0 16px 34px var(--glow);
+    }
+
+    .card.selected {
+      background:
+        linear-gradient(180deg, var(--accent-soft), transparent 40%),
+        var(--panel-raised);
     }
 
     .glyph {
@@ -505,12 +699,15 @@
       background:
         radial-gradient(circle at 30% 20%, var(--accent-soft), transparent 55%),
         var(--panel);
+      overflow: hidden;
     }
 
     .glyph i {
-      font-size: var(--icon-size);
+      /* Grid keeps a stable size; live Size control only drives preview + snippet */
+      font-size: 40px;
       color: var(--icon-color);
-      transition: font-size 0.2s var(--ease), color 0.2s var(--ease);
+      line-height: 1;
+      transition: color 0.2s var(--ease);
     }
 
     .meta {
@@ -547,6 +744,12 @@
       font-size: 11px;
       font-weight: 600;
       color: var(--muted);
+      cursor: pointer;
+    }
+
+    .tag:hover {
+      border-color: var(--accent);
+      color: var(--accent-ink);
     }
 
     .actions {
@@ -568,7 +771,11 @@
       border: 1px dashed var(--line-strong);
       border-radius: var(--radius);
       color: var(--muted);
-      background: color-mix(in srgb, var(--panel) 70%, transparent);
+      background: rgba(247, 250, 248, 0.7);
+    }
+
+    body.dark .empty {
+      background: rgba(15, 26, 22, 0.7);
     }
 
     .empty strong {
@@ -608,6 +815,7 @@
       transform: translateY(10px);
       pointer-events: none;
       transition: opacity 0.25s ease, transform 0.25s ease;
+      max-width: min(320px, calc(100vw - 36px));
     }
 
     .toast.active {
@@ -615,18 +823,15 @@
       transform: translateY(0);
     }
 
+    .toast.error {
+      background: #991b1b;
+      color: #fff;
+    }
+
     @media (max-width: 960px) {
-      .layout {
-        grid-template-columns: 1fr;
-      }
-
-      .sidebar {
-        position: static;
-      }
-
-      .toolbar {
-        position: static;
-      }
+      .layout { grid-template-columns: 1fr; }
+      .sidebar,
+      .toolbar { position: static; }
     }
 
     @media (max-width: 560px) {
@@ -637,9 +842,7 @@
 
       .brand-copy p { display: none; }
 
-      .actions {
-        grid-template-columns: 1fr;
-      }
+      .actions { grid-template-columns: 1fr; }
 
       .grid {
         grid-template-columns: 1fr 1fr;
@@ -665,7 +868,10 @@
   <div
     class="app"
     id="iconApp"
-    :style="{ '--icon-size': iconSize + 'px', '--icon-color': iconColor }"
+    :class="{ compact: density === 'compact' }"
+    :style="{ '--icon-size': iconSize + 'px', '--icon-color': iconColor, '--preview-bg': previewBg }"
+    @keydown="onKeydown"
+    tabindex="0"
   >
     <header class="topbar">
       <div class="brand">
@@ -675,9 +881,12 @@
           <p>SVG → icon font · search, preview, and copy</p>
         </div>
       </div>
-      <div class="top-actions">
+        <div class="top-actions">
         <span class="badge"><span class="dot"></span> live</span>
-        <button class="btn ghost" type="button" @click="toggleTheme">
+        <button class="btn ghost" type="button" @click="openPalette" title="Command palette">
+          Search <span class="kbd">⌘K</span>
+        </button>
+        <button class="btn ghost" type="button" @click="toggleTheme" :aria-pressed="isDark.toString()">
           {{ isDark ? 'Light' : 'Dark' }}
         </button>
       </div>
@@ -688,6 +897,25 @@
         <h2 class="panel-title">Preview</h2>
         <div class="preview-box">
           <i :class="previewClass" aria-hidden="true"></i>
+        </div>
+        <div class="preview-name">{{ previewClass }}</div>
+        <p class="hint">Click a card to select · arrows to move · Enter copies class</p>
+
+        <div class="field">
+          <label>Contrast lab</label>
+          <div class="contrast-row">
+            <button
+              class="swatch"
+              type="button"
+              v-for="swatch in contrastSwatches"
+              :key="swatch"
+              :class="{ active: previewBg === swatch }"
+              :style="{ background: swatch }"
+              :aria-label="'Preview background ' + swatch"
+              @click="previewBg = swatch"
+            ></button>
+          </div>
+          <p class="hint">WCAG contrast vs icon color: <strong>{{ contrastRatio }}</strong> · {{ contrastGrade }}</p>
         </div>
 
         <div class="field">
@@ -754,28 +982,73 @@
               v-model="search"
               placeholder="Search by class, tag, or unicode…"
               aria-label="Search icons"
+              @keydown.stop
             />
           </div>
           <button class="btn" type="button" v-if="search" @click="search = ''">Clear</button>
+          <div class="toolbar-tools">
+            <select class="select" v-model="sortBy" aria-label="Sort icons">
+              <option value="name">Sort: name</option>
+              <option value="code">Sort: codepoint</option>
+              <option value="tags">Sort: tags</option>
+            </select>
+            <button class="btn" type="button" @click="toggleDensity">
+              {{ density === 'compact' ? 'Comfortable' : 'Compact' }}
+            </button>
+            <button
+              class="btn"
+              type="button"
+              :disabled="!checkedIds.length"
+              @click="copyCheckedClasses"
+            >
+              Copy selected ({{ checkedIds.length }})
+            </button>
+          </div>
           <div class="stats">
             <span class="stat">{{ icons.length }} total</span>
             <span class="stat">{{ filteredIcons.length }} visible</span>
           </div>
         </section>
 
-        <ul class="grid" v-if="filteredIcons.length">
-          <li class="card" v-for="icon in filteredIcons" :key="icon.id">
+        <ul class="grid" v-if="filteredIcons.length" role="listbox" aria-label="Icon results" aria-multiselectable="true">
+          <li
+            class="card"
+            v-for="icon in filteredIcons"
+            :key="icon.id"
+            :class="{ selected: selectedId === icon.id }"
+            role="option"
+            :aria-selected="(selectedId === icon.id).toString()"
+            :tabindex="selectedId === icon.id ? 0 : -1"
+            @click="selectIcon(icon, $event)"
+            @keydown.enter.prevent="copyToClipboard(icon.className, 'Class copied')"
+          >
+            <div class="select-row">
+              <input
+                class="check"
+                type="checkbox"
+                :checked="checkedIds.indexOf(icon.id) !== -1"
+                :aria-label="'Select ' + icon.className"
+                @click.stop
+                @change="toggleChecked(icon.id)"
+              />
+              <span class="unicode">{{ '\\u' + icon.code.toString(16) }}</span>
+            </div>
             <div class="glyph">
               <i :class="icon.className" aria-hidden="true"></i>
             </div>
             <div class="meta">
               <span class="class-name">{{ icon.className }}</span>
-              <span class="unicode">{{ '\\u' + icon.code.toString(16) }}</span>
             </div>
             <div class="tags" v-if="icon.tags && icon.tags.length">
-              <span class="tag" v-for="tag in icon.tags" :key="tag">{{ tag }}</span>
+              <button
+                class="tag"
+                type="button"
+                v-for="tag in icon.tags"
+                :key="tag"
+                @click.stop="filterByTag(tag)"
+              >{{ tag }}</button>
             </div>
-            <div class="actions">
+            <div class="actions" @click.stop>
               <button class="btn primary" type="button" @click="copyToClipboard(icon.className, 'Class copied')">
                 Class
               </button>
@@ -800,7 +1073,44 @@
       </main>
     </div>
 
-    <div class="toast" :class="{ active: copiedMessage }" role="status" aria-live="polite">
+
+    <div
+      class="palette-backdrop"
+      v-if="paletteOpen"
+      @click.self="closePalette"
+    >
+      <div class="palette" role="dialog" aria-modal="true" aria-label="Command palette">
+        <input
+          ref="paletteInput"
+          type="search"
+          v-model="paletteQuery"
+          placeholder="Jump to an icon…"
+          @keydown.down.prevent="movePalette(1)"
+          @keydown.up.prevent="movePalette(-1)"
+          @keydown.enter.prevent="confirmPalette"
+          @keydown.esc.prevent="closePalette"
+        />
+        <ul class="palette-list">
+          <li
+            class="palette-item"
+            v-for="(icon, index) in paletteResults"
+            :key="icon.id"
+            :class="{ active: index === paletteIndex }"
+            @click="pickPalette(icon)"
+            @mouseenter="paletteIndex = index"
+          >
+            <i :class="icon.className" aria-hidden="true"></i>
+            <div class="palette-meta">
+              <strong>{{ icon.className }}</strong>
+              <span>{{ (icon.tags || []).join(', ') }} · \\u{{ icon.code.toString(16) }}</span>
+            </div>
+          </li>
+        </ul>
+        <div class="palette-hint">Enter selects · Esc closes · ⌘/Ctrl+K toggles</div>
+      </div>
+    </div>
+
+    <div class="toast" :class="{ active: copiedMessage, error: toastError }" role="status" aria-live="polite">
       {{ copiedMessage }}
     </div>
   </div>
@@ -813,109 +1123,320 @@
         icons: [],
         fontName: 'swfont',
         copiedMessage: '',
+        toastError: false,
         isDark: false,
         iconSize: 40,
-        iconColor: '#101916'
+        iconColor: '#101916',
+        selectedId: null,
+        checkedIds: [],
+        sortBy: 'name',
+        density: 'comfortable',
+        previewBg: 'linear-gradient(160deg, #d4f3ec, transparent 55%), #ffffff',
+        contrastSwatches: [
+          'linear-gradient(160deg, #d4f3ec, transparent 55%), #ffffff',
+          '#ffffff',
+          '#101916',
+          '#0b7a6c',
+          '#fef3c7',
+          '#dbeafe'
+        ],
+        paletteOpen: false,
+        paletteQuery: '',
+        paletteIndex: 0,
+        themeMedia: null
       },
       mounted() {
+        this.restorePrefs();
         this.initTheme();
+        this.readDeepLink();
+        window.addEventListener('keydown', this.onGlobalKeydown);
         fetch('iconfont.json')
           .then((response) => response.json())
           .then((data) => {
-            this.icons = data;
+            this.icons = Array.isArray(data) ? data : [];
+            this.readDeepLink();
+            if (!this.selectedId && this.icons.length) this.selectedId = this.icons[0].id;
+            this.writeDeepLink();
           })
-          .catch(() => {
-            this.showToast('Could not load iconfont.json');
-          });
+          .catch(() => this.showToast('Could not load iconfont.json', true));
+      },
+      beforeDestroy() {
+        window.removeEventListener('keydown', this.onGlobalKeydown);
+        if (this.themeMedia) this.themeMedia.removeEventListener('change', this.onSystemThemeChange);
+      },
+      watch: {
+        iconSize() { this.persistAndSync(); },
+        iconColor() { this.persistAndSync(); },
+        selectedId() { this.writeDeepLink(); },
+        search() { this.writeDeepLink(); },
+        sortBy(value) { localStorage.setItem('iconGallerySort', value); this.writeDeepLink(); },
+        density(value) { localStorage.setItem('iconGalleryDensity', value); this.writeDeepLink(); },
+        previewBg(value) { localStorage.setItem('iconGalleryPreviewBg', value); },
+        filteredIcons(list) {
+          if (!list.length) { this.selectedId = null; return; }
+          if (!list.some((icon) => icon.id === this.selectedId)) this.selectedId = list[0].id;
+        },
+        paletteQuery() { this.paletteIndex = 0; }
       },
       computed: {
         filteredIcons() {
           const query = this.search.trim().toLowerCase();
-          if (!query) return this.icons;
-
-          return this.icons.filter((icon) => {
+          let list = !query ? this.icons.slice() : this.icons.filter((icon) => {
             const classMatch = icon.className && icon.className.toLowerCase().includes(query);
             const tagMatch = Array.isArray(icon.tags) && icon.tags.some((tag) => tag.toLowerCase().includes(query));
             const code = icon.code ? icon.code.toString(16) : '';
             const codeMatch = code.includes(query.replace('\\u', '').replace(/^u/, ''));
             return classMatch || tagMatch || codeMatch;
           });
+          if (this.sortBy === 'code') list.sort((a, b) => (a.code || 0) - (b.code || 0));
+          else if (this.sortBy === 'tags') list.sort((a, b) => (a.tags || []).join(',').localeCompare((b.tags || []).join(',')));
+          else list.sort((a, b) => a.className.localeCompare(b.className));
+          return list;
+        },
+        selectedIcon() {
+          return this.filteredIcons.find((icon) => icon.id === this.selectedId) || this.filteredIcons[0] || this.icons[0] || null;
         },
         isDefaultColor() {
           return this.iconColor === (this.isDark ? '#e7f3ee' : '#101916');
         },
         previewClass() {
-          if (this.filteredIcons.length) return this.filteredIcons[0].className;
-          if (this.icons.length) return this.icons[0].className;
-          return 'swicon-shield';
+          return (this.selectedIcon && this.selectedIcon.className) || 'swicon-shield';
         },
         liveSnippet() {
-          return `<i class="${this.previewClass}" style="font-size: ${this.iconSize}px; color: ${this.iconColor};"></i>`;
+          return '<i class="' + this.previewClass + '" style="font-size: ' + this.iconSize + 'px; color: ' + this.iconColor + ';"></i>';
+        },
+        contrastRatio() {
+          return this.contrastBetween(this.iconColor, this.effectivePreviewColor()).toFixed(2) + ':1';
+        },
+        contrastGrade() {
+          const ratio = this.contrastBetween(this.iconColor, this.effectivePreviewColor());
+          if (ratio >= 7) return 'AAA';
+          if (ratio >= 4.5) return 'AA';
+          if (ratio >= 3) return 'AA large';
+          return 'Fail';
+        },
+        paletteResults() {
+          const query = this.paletteQuery.trim().toLowerCase();
+          const list = !query ? this.icons.slice(0, 12) : this.icons.filter((icon) => {
+            return (icon.className && icon.className.toLowerCase().includes(query))
+              || (icon.id && icon.id.toLowerCase().includes(query))
+              || (Array.isArray(icon.tags) && icon.tags.some((tag) => tag.toLowerCase().includes(query)));
+          }).slice(0, 12);
+          return list;
         }
       },
       methods: {
+        persistAndSync() {
+          localStorage.setItem('iconGallerySize', String(this.iconSize));
+          localStorage.setItem('iconGalleryColor', this.iconColor);
+          this.writeDeepLink();
+        },
+        restorePrefs() {
+          const size = Number(localStorage.getItem('iconGallerySize'));
+          if (size && size >= 16 && size <= 88) this.iconSize = size;
+          const color = localStorage.getItem('iconGalleryColor');
+          if (color) this.iconColor = color;
+          const sortBy = localStorage.getItem('iconGallerySort');
+          if (sortBy) this.sortBy = sortBy;
+          const density = localStorage.getItem('iconGalleryDensity');
+          if (density) this.density = density;
+          const previewBg = localStorage.getItem('iconGalleryPreviewBg');
+          if (previewBg) this.previewBg = previewBg;
+        },
+        readDeepLink() {
+          const params = new URLSearchParams(window.location.search);
+          if (params.has('icon')) this.selectedId = params.get('icon');
+          if (params.has('q')) this.search = params.get('q');
+          if (params.has('size')) {
+            const size = Number(params.get('size'));
+            if (size >= 16 && size <= 88) this.iconSize = size;
+          }
+          if (params.has('color')) this.iconColor = decodeURIComponent(params.get('color'));
+          if (params.has('sort')) this.sortBy = params.get('sort');
+          if (params.has('density')) this.density = params.get('density');
+        },
+        writeDeepLink() {
+          const params = new URLSearchParams();
+          if (this.selectedId) params.set('icon', this.selectedId);
+          if (this.search) params.set('q', this.search);
+          if (this.iconSize !== 40) params.set('size', String(this.iconSize));
+          if (!this.isDefaultColor) params.set('color', this.iconColor);
+          if (this.sortBy !== 'name') params.set('sort', this.sortBy);
+          if (this.density !== 'comfortable') params.set('density', this.density);
+          const qs = params.toString();
+          const next = window.location.pathname + (qs ? '?' + qs : '') + (window.location.hash || '');
+          const current = window.location.pathname + window.location.search + (window.location.hash || '');
+          if (next !== current) history.replaceState(null, '', next);
+        },
         initTheme() {
           const saved = localStorage.getItem('iconGalleryTheme');
-          if (saved) {
-            this.applyTheme(saved === 'dark');
-            return;
+          if (saved) this.applyTheme(saved === 'dark', false);
+          else {
+            const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            this.applyTheme(prefersDark, false);
           }
-          const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-          this.applyTheme(prefersDark);
+          if (window.matchMedia) {
+            this.themeMedia = window.matchMedia('(prefers-color-scheme: dark)');
+            this.themeMedia.addEventListener('change', this.onSystemThemeChange);
+          }
         },
-        toggleTheme() {
-          this.applyTheme(!this.isDark);
-          localStorage.setItem('iconGalleryTheme', this.isDark ? 'dark' : 'light');
+        onSystemThemeChange(event) {
+          if (localStorage.getItem('iconGalleryTheme')) return;
+          this.applyTheme(event.matches, false);
         },
-        applyTheme(dark) {
+        toggleTheme() { this.applyTheme(!this.isDark, true); },
+        applyTheme(dark, persist) {
           const wasDefault = this.isDefaultColor;
           this.isDark = dark;
           document.body.classList.toggle('dark', dark);
-          if (wasDefault) {
-            this.iconColor = dark ? '#e7f3ee' : '#101916';
+          if (persist) localStorage.setItem('iconGalleryTheme', dark ? 'dark' : 'light');
+          if (wasDefault) this.iconColor = dark ? '#e7f3ee' : '#101916';
+        },
+        resetColor() { this.iconColor = this.isDark ? '#e7f3ee' : '#101916'; },
+        toggleDensity() { this.density = this.density === 'compact' ? 'comfortable' : 'compact'; },
+        selectIcon(icon, event) {
+          this.selectedId = icon.id;
+          if (event && (event.metaKey || event.ctrlKey)) this.toggleChecked(icon.id);
+        },
+        toggleChecked(id) {
+          const index = this.checkedIds.indexOf(id);
+          if (index === -1) this.checkedIds = this.checkedIds.concat(id);
+          else this.checkedIds = this.checkedIds.filter((item) => item !== id);
+        },
+        copyCheckedClasses() {
+          const classes = this.icons.filter((icon) => this.checkedIds.indexOf(icon.id) !== -1).map((icon) => icon.className).join('\n');
+          this.copyToClipboard(classes, 'Selected classes copied');
+        },
+        filterByTag(tag) { this.search = tag; },
+        openPalette() {
+          this.paletteOpen = true;
+          this.paletteQuery = '';
+          this.paletteIndex = 0;
+          this.$nextTick(() => { if (this.$refs.paletteInput) this.$refs.paletteInput.focus(); });
+        },
+        closePalette() { this.paletteOpen = false; },
+        movePalette(step) {
+          const max = Math.max(this.paletteResults.length - 1, 0);
+          this.paletteIndex = Math.min(max, Math.max(0, this.paletteIndex + step));
+        },
+        confirmPalette() {
+          const icon = this.paletteResults[this.paletteIndex];
+          if (icon) this.pickPalette(icon);
+        },
+        pickPalette(icon) {
+          this.selectedId = icon.id;
+          this.search = '';
+          this.closePalette();
+        },
+        onGlobalKeydown(event) {
+          const key = event.key.toLowerCase();
+          if ((event.metaKey || event.ctrlKey) && key === 'k') {
+            event.preventDefault();
+            if (this.paletteOpen) this.closePalette();
+            else this.openPalette();
           }
         },
-        resetColor() {
-          this.iconColor = this.isDark ? '#e7f3ee' : '#101916';
+        onKeydown(event) {
+          if (this.paletteOpen) return;
+          const target = event.target;
+          if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT')) return;
+          const list = this.filteredIcons;
+          if (!list.length) return;
+          const currentIndex = Math.max(0, list.findIndex((icon) => icon.id === this.selectedId));
+          const cols = this.gridColumns();
+          if (event.key === 'ArrowRight') { event.preventDefault(); this.selectedId = list[Math.min(list.length - 1, currentIndex + 1)].id; }
+          else if (event.key === 'ArrowLeft') { event.preventDefault(); this.selectedId = list[Math.max(0, currentIndex - 1)].id; }
+          else if (event.key === 'ArrowDown') { event.preventDefault(); this.selectedId = list[Math.min(list.length - 1, currentIndex + cols)].id; }
+          else if (event.key === 'ArrowUp') { event.preventDefault(); this.selectedId = list[Math.max(0, currentIndex - cols)].id; }
+          else if (event.key === 'Enter') {
+            event.preventDefault();
+            const icon = list[currentIndex];
+            if (icon) this.copyToClipboard(icon.className, 'Class copied');
+          } else if (event.key === ' ' && (event.metaKey || event.ctrlKey)) {
+            event.preventDefault();
+            const icon = list[currentIndex];
+            if (icon) this.toggleChecked(icon.id);
+          }
+        },
+        gridColumns() {
+          const grid = this.$el.querySelector('.grid');
+          if (!grid) return 1;
+          const template = window.getComputedStyle(grid).gridTemplateColumns || '';
+          return Math.max(1, template.split(' ').filter(Boolean).length);
+        },
+        hexToRgb(hex) {
+          const clean = String(hex || '').replace('#', '');
+          if (clean.length !== 3 && clean.length !== 6) return { r: 16, g: 25, b: 22 };
+          const full = clean.length === 3 ? clean.split('').map((c) => c + c).join('') : clean;
+          return { r: parseInt(full.slice(0, 2), 16), g: parseInt(full.slice(2, 4), 16), b: parseInt(full.slice(4, 6), 16) };
+        },
+        relativeLuminance(hex) {
+          const { r, g, b } = this.hexToRgb(hex);
+          const toLinear = (value) => {
+            const channel = value / 255;
+            return channel <= 0.03928 ? channel / 12.92 : Math.pow((channel + 0.055) / 1.055, 2.4);
+          };
+          return 0.2126 * toLinear(r) + 0.7152 * toLinear(g) + 0.0722 * toLinear(b);
+        },
+        contrastBetween(fg, bg) {
+          const L1 = this.relativeLuminance(fg);
+          const L2 = this.relativeLuminance(bg);
+          const lighter = Math.max(L1, L2);
+          const darker = Math.min(L1, L2);
+          return (lighter + 0.05) / (darker + 0.05);
+        },
+        effectivePreviewColor() {
+          if (this.previewBg.charAt(0) === '#') return this.previewBg;
+          if (this.previewBg.indexOf('#101916') !== -1) return '#101916';
+          if (this.previewBg.indexOf('#0b7a6c') !== -1) return '#0b7a6c';
+          if (this.previewBg.indexOf('#fef3c7') !== -1) return '#fef3c7';
+          if (this.previewBg.indexOf('#dbeafe') !== -1) return '#dbeafe';
+          return '#ffffff';
         },
         buildAriaLabel(icon) {
-          if (Array.isArray(icon.tags) && icon.tags.length) {
-            return (icon.tags[0] + ' icon').trim();
-          }
-          return `${icon.id || icon.className || 'icon'}`.replace(/-/g, ' ') + ' icon';
+          if (Array.isArray(icon.tags) && icon.tags.length) return (icon.tags[0] + ' icon').trim();
+          return String(icon.id || icon.className || 'icon').replace(/-/g, ' ') + ' icon';
         },
         copyAccessible(icon) {
           const aria = this.buildAriaLabel(icon);
-          const snippet = `<i class="${icon.className}" role="img" aria-label="${aria}"></i>`;
-          this.copyToClipboard(snippet, 'Accessible snippet copied');
+          this.copyToClipboard('<i class="' + icon.className + '" role="img" aria-label="' + aria + '"></i>', 'Accessible snippet copied');
         },
         copyUsage(icon) {
           const aria = this.buildAriaLabel(icon);
-          const snippet =
-            `<i class="${icon.className}" role="img" aria-label="${aria}" style="font-size: ${this.iconSize}px; color: ${this.iconColor};"></i>`;
+          const snippet = '<i class="' + icon.className + '" role="img" aria-label="' + aria + '" style="font-size: ' + this.iconSize + 'px; color: ' + this.iconColor + ';"></i>';
           this.copyToClipboard(snippet, 'Usage example copied');
         },
         copyToClipboard(value, message) {
           if (!value) return;
           const text = value.toString();
+          const fallback = () => {
+            try {
+              const temp = document.createElement('textarea');
+              temp.value = text;
+              temp.setAttribute('readonly', '');
+              temp.style.position = 'fixed';
+              temp.style.opacity = '0';
+              document.body.appendChild(temp);
+              temp.select();
+              const ok = document.execCommand('copy');
+              document.body.removeChild(temp);
+              if (!ok) throw new Error('execCommand failed');
+              this.showToast(message, false);
+            } catch (err) {
+              this.showToast('Clipboard permission denied', true);
+            }
+          };
           if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(text);
-          } else {
-            const temp = document.createElement('textarea');
-            temp.value = text;
-            document.body.appendChild(temp);
-            temp.select();
-            document.execCommand('copy');
-            document.body.removeChild(temp);
+            navigator.clipboard.writeText(text).then(() => this.showToast(message, false)).catch(fallback);
+            return;
           }
-          this.showToast(message);
+          fallback();
         },
-        showToast(message) {
+        showToast(message, isError) {
+          this.toastError = !!isError;
           this.copiedMessage = message;
           clearTimeout(this._toastTimer);
-          this._toastTimer = setTimeout(() => {
-            this.copiedMessage = '';
-          }, 1800);
+          this._toastTimer = setTimeout(() => { this.copiedMessage = ''; this.toastError = false; }, 1800);
         }
       }
     });

@@ -1,19 +1,19 @@
 # gulp-icon-font
 
-Pipeline Gulp que transforma SVGs em **icon font** (WOFF/WOFF2) + CSS + galeria interativa para buscar, pré-visualizar e copiar classes.
+Gulp pipeline that turns SVGs into an **icon font** (WOFF/WOFF2) + CSS + an interactive gallery to search, preview, and copy class names.
 
-**Demo ao vivo:** [https://heberalmeida.github.io/gulp-icon-font/](https://heberalmeida.github.io/gulp-icon-font/)
+**Live demo:** [https://heberalmeida.github.io/gulp-icon-font/](https://heberalmeida.github.io/gulp-icon-font/)
 
 ---
 
-## Como funciona
+## How it works
 
 ```
 icons/svg/*.svg
       │
       ▼
 ┌─────────────────┐
-│  1. icontags    │  limpa tags do nome, valida fills, gera metadados
+│  1. icontags    │  strip tags from filenames, validate fills, build metadata
 └────────┬────────┘
          ▼
 ┌─────────────────┐
@@ -21,113 +21,113 @@ icons/svg/*.svg
 └────────┬────────┘
          ▼
 ┌─────────────────┐
-│  3. templates   │  CSS + HTML + iconfont.json em dist/
+│  3. templates   │  CSS + HTML + iconfont.json into dist/
 └────────┬────────┘
          ▼
    BrowserSync / GitHub Pages
 ```
 
-1. **Entrada** — você adiciona SVGs monocromáticos em `icons/svg/`.
-2. **Tags no filename** — `shield[test, new].svg` vira id `shield` com tags `test` e `new` (mais segmentos do nome) para a busca na galeria.
-3. **Geração da font** — `gulp-iconfont` normaliza os glyphs, atribui unicode e emite `swfont.woff` / `swfont.woff2`.
-4. **CSS** — o template `icons/iconfont.css` é preenchido com `@font-face` e classes `swicon-{nome}`.
-5. **Galeria** — `icons/index.html` + `iconfont.json` formam o preview em `dist/` (busca, tema, tamanho/cor, copy-to-clipboard).
-6. **Watch** — `gulp` sobe BrowserSync e reconstrói quando um SVG muda.
+1. **Input** — add single-color SVGs to `icons/svg/`.
+2. **Filename tags** — `shield[test, new].svg` becomes id `shield` with tags used by gallery search.
+3. **Font generation** — `gulp-iconfont` normalizes glyphs, assigns unicode, and emits `swfont.woff` / `swfont.woff2`.
+4. **CSS** — `icons/iconfont.css` is filled with `@font-face` and `swicon-{name}` classes.
+5. **Gallery** — `icons/index.html` + `iconfont.json` power the preview in `dist/` (search, theme, size/color, copy-to-clipboard).
+6. **Watch** — `gulp` starts BrowserSync and rebuilds when an SVG changes.
 
-> SVGs multicoloridos não funcionam bem como font. O build avisa se detectar vários `fill` no mesmo arquivo.
+> Multi-color SVGs do not work well as a font. The build warns if it detects multiple `fill` values in the same file.
 
 ---
 
-## Pré-requisitos
+## Prerequisites
 
-- Node.js (testado em v18+)
-- `gulp-cli` global
-- Yarn (ou npm)
+- Node.js (tested on v18+)
+- Global `gulp-cli`
+- Yarn (or npm)
 
-## Instalação
+## Installation
 
 ```bash
 npm install -g gulp-cli
 yarn install
 ```
 
-## Uso local
+## Local usage
 
 ```bash
-gulp          # build + watch + BrowserSync (abre dist/)
-yarn watch    # só o watcher
+gulp          # build + watch + BrowserSync (serves dist/)
+yarn watch    # watcher only
 ```
 
-Fluxo típico:
+Typical flow:
 
-1. Rode `gulp`.
-2. Adicione/edite SVGs em `icons/svg/`.
-3. A galeria atualiza sozinha — busque e copie classes.
+1. Run `gulp`.
+2. Add/edit SVGs in `icons/svg/`.
+3. The gallery refreshes automatically — search and copy classes.
 
-### Consumir no seu projeto
+### Use in your project
 
 ```html
-<link rel="stylesheet" href="/caminho/para/dist/iconfont.css" />
+<link rel="stylesheet" href="/path/to/dist/iconfont.css" />
 
 <i class="swicon-shield" role="img" aria-label="shield icon"></i>
 ```
 
-Tamanho e cor via CSS (`font-size` / `color`):
+Size and color via CSS (`font-size` / `color`):
 
 ```html
 <i class="swicon-users" style="font-size: 28px; color: #0f766e;"></i>
 ```
 
-### Tags nos SVGs
+### Tagging SVGs
 
 ```
 icon-name[search, ui].svg
 ```
 
-As tags viram chips na galeria e entram no filtro de busca.
+Tags become chips in the gallery and feed the search filter.
 
-### Manifest opcional
+### Optional manifest
 
 ```bash
 gulp --manifest
 ```
 
-Além de `iconfont.json`, gera `icon-manifest.json` com os mesmos metadados para outros pipelines.
+Also writes `icon-manifest.json` alongside `iconfont.json` for other pipelines.
 
 ---
 
 ## Deploy (GitHub Pages)
 
-O site estático sai de `dist/`. Com o build atualizado:
+Static output lives in `dist/`. With a fresh build:
 
 ```bash
 yarn deploy
-# equivalente: npx gh-pages -d dist
+# same as: npx gh-pages -d dist
 ```
 
-Isso publica a branch `gh-pages`. A URL pública é:
+That publishes the `gh-pages` branch. Public URL:
 
 **https://heberalmeida.github.io/gulp-icon-font/**
 
 ---
 
-## Estrutura
+## Structure
 
-| Caminho | Função |
-|--------|--------|
-| `icons/svg/` | SVGs de origem (com tags opcionais no nome) |
-| `icons/svg/build/` | SVGs limpos (sem `[tags]`) usados na font |
-| `icons/iconfont.css` | Template Underscore do CSS |
-| `icons/index.html` | Template da galeria |
+| Path | Role |
+|------|------|
+| `icons/svg/` | Source SVGs (optional tags in the filename) |
+| `icons/svg/build/` | Cleaned SVGs (tags stripped) used for the font |
+| `icons/iconfont.css` | Underscore CSS template |
+| `icons/index.html` | Gallery template |
 | `gulpfile.js` | Tasks: tags → font → CSS/HTML/JSON → serve |
-| `dist/` | Artefatos finais (font, CSS, preview, JSON) |
+| `dist/` | Final assets (font, CSS, preview, JSON) |
 
-Prefixo das classes: `swicon-` · Nome da font: `swfont`.
+Class prefix: `swicon-` · Font family: `swfont`.
 
 ---
 
-## Observações
+## Notes
 
-- Prefira SVGs de um único tom (`fill` único ou `currentColor`).
-- Não edite `dist/` à mão — ele é regenerado pelo Gulp.
-- Ajuste `icons.pref` / `icons.name` no `gulpfile.js` se quiser outro prefixo ou nome de família.
+- Prefer single-tone SVGs (`fill` once, or `currentColor`).
+- Do not edit `dist/` by hand — Gulp regenerates it.
+- Change `icons.pref` / `icons.name` in `gulpfile.js` if you want another prefix or font family name.

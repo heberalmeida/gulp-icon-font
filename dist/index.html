@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Galeria interativa da icon font swfont — busque, pré-visualize e copie classes." />
-  <title>swfont — Galeria de Ícones</title>
+  <meta name="description" content="Interactive swfont icon gallery — search, preview, and copy class names." />
+  <title>swfont — Icon Gallery</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -672,19 +672,19 @@
         <div class="logo" aria-hidden="true">sw</div>
         <div class="brand-copy">
           <h1><span>sw</span>font</h1>
-          <p>SVG → icon font · busca, preview e copy</p>
+          <p>SVG → icon font · search, preview, and copy</p>
         </div>
       </div>
       <div class="top-actions">
-        <span class="badge"><span class="dot"></span> ao vivo</span>
+        <span class="badge"><span class="dot"></span> live</span>
         <button class="btn ghost" type="button" @click="toggleTheme">
-          {{ isDark ? 'Claro' : 'Escuro' }}
+          {{ isDark ? 'Light' : 'Dark' }}
         </button>
       </div>
     </header>
 
     <div class="layout">
-      <aside class="panel sidebar" aria-label="Configurações de preview">
+      <aside class="panel sidebar" aria-label="Preview settings">
         <h2 class="panel-title">Preview</h2>
         <div class="preview-box">
           <i :class="previewClass" aria-hidden="true"></i>
@@ -692,7 +692,7 @@
 
         <div class="field">
           <div class="field-row">
-            <label for="sizeControl">Tamanho</label>
+            <label for="sizeControl">Size</label>
             <span class="value">{{ iconSize }}px</span>
           </div>
           <input
@@ -711,15 +711,15 @@
         </div>
 
         <div class="field">
-          <label for="colorControl">Cor</label>
+          <label for="colorControl">Color</label>
           <div class="color-row">
             <input id="colorControl" class="color" type="color" v-model="iconColor" />
             <div class="color-hex">{{ iconColor }}</div>
           </div>
           <div class="chips">
             <button class="chip" type="button" :class="{ active: iconColor === '#0b7a6c' }" @click="iconColor = '#0b7a6c'">Teal</button>
-            <button class="chip" type="button" :class="{ active: iconColor === '#0369a1' }" @click="iconColor = '#0369a1'">Azul</button>
-            <button class="chip" type="button" :class="{ active: iconColor === '#b45309' }" @click="iconColor = '#b45309'">Âmbar</button>
+            <button class="chip" type="button" :class="{ active: iconColor === '#0369a1' }" @click="iconColor = '#0369a1'">Blue</button>
+            <button class="chip" type="button" :class="{ active: iconColor === '#b45309' }" @click="iconColor = '#b45309'">Amber</button>
             <button class="chip" type="button" :class="{ active: isDefaultColor }" @click="resetColor">Default</button>
           </div>
         </div>
@@ -727,23 +727,23 @@
         <div class="snippet">
           <div class="field-row">
             <h2 class="panel-title">Snippet</h2>
-            <button class="btn tiny" type="button" @click="copyToClipboard(liveSnippet, 'Snippet copiado')">
-              Copiar
+            <button class="btn tiny" type="button" @click="copyToClipboard(liveSnippet, 'Snippet copied')">
+              Copy
             </button>
           </div>
           <pre>{{ liveSnippet }}</pre>
         </div>
 
         <div class="howto-mini">
-          <h2 class="panel-title">Fluxo</h2>
-          <p>1. SVG em <code>icons/svg</code> com tags opcionais <code>nome[a,b].svg</code></p>
-          <p>2. Gulp gera WOFF/WOFF2 + CSS <code>swicon-*</code></p>
-          <p>3. Use no HTML e estilize com <code>font-size</code> / <code>color</code></p>
+          <h2 class="panel-title">Pipeline</h2>
+          <p>1. Drop SVGs in <code>icons/svg</code> with optional tags <code>name[a,b].svg</code></p>
+          <p>2. Gulp builds WOFF/WOFF2 + CSS classes <code>swicon-*</code></p>
+          <p>3. Use in HTML and style with <code>font-size</code> / <code>color</code></p>
         </div>
       </aside>
 
       <main class="main">
-        <section class="panel toolbar" aria-label="Busca">
+        <section class="panel toolbar" aria-label="Search">
           <div class="search">
             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2" />
@@ -752,14 +752,14 @@
             <input
               type="search"
               v-model="search"
-              placeholder="Buscar por classe, tag ou unicode…"
-              aria-label="Buscar ícones"
+              placeholder="Search by class, tag, or unicode…"
+              aria-label="Search icons"
             />
           </div>
-          <button class="btn" type="button" v-if="search" @click="search = ''">Limpar</button>
+          <button class="btn" type="button" v-if="search" @click="search = ''">Clear</button>
           <div class="stats">
             <span class="stat">{{ icons.length }} total</span>
-            <span class="stat">{{ filteredIcons.length }} visíveis</span>
+            <span class="stat">{{ filteredIcons.length }} visible</span>
           </div>
         </section>
 
@@ -776,25 +776,25 @@
               <span class="tag" v-for="tag in icon.tags" :key="tag">{{ tag }}</span>
             </div>
             <div class="actions">
-              <button class="btn primary" type="button" @click="copyToClipboard(icon.className, 'Classe copiada')">
-                Classe
+              <button class="btn primary" type="button" @click="copyToClipboard(icon.className, 'Class copied')">
+                Class
               </button>
-              <button class="btn" type="button" @click="copyToClipboard('\\\\u' + icon.code.toString(16), 'Unicode copiado')">
+              <button class="btn" type="button" @click="copyToClipboard('\\\\u' + icon.code.toString(16), 'Unicode copied')">
                 Unicode
               </button>
-              <button class="btn" type="button" @click="copyAccessible(icon)">Acessível</button>
-              <button class="btn" type="button" @click="copyUsage(icon)">Uso</button>
+              <button class="btn" type="button" @click="copyAccessible(icon)">Accessible</button>
+              <button class="btn" type="button" @click="copyUsage(icon)">Usage</button>
             </div>
           </li>
         </ul>
 
         <div class="empty" v-else>
-          <strong>Nenhum ícone encontrado</strong>
-          Tente outro termo ou adicione tags nos nomes dos SVGs.
+          <strong>No icons found</strong>
+          Try another keyword or add tags to your SVG filenames.
         </div>
 
         <p class="footer-note">
-          Fonte: <strong>swfont</strong> ·
+          Font: <strong>swfont</strong> ·
           <a href="https://github.com/heberalmeida/gulp-icon-font" target="_blank" rel="noopener">GitHub</a>
         </p>
       </main>
@@ -825,7 +825,7 @@
             this.icons = data;
           })
           .catch(() => {
-            this.showToast('Não foi possível carregar iconfont.json');
+            this.showToast('Could not load iconfont.json');
           });
       },
       computed: {
@@ -887,13 +887,13 @@
         copyAccessible(icon) {
           const aria = this.buildAriaLabel(icon);
           const snippet = `<i class="${icon.className}" role="img" aria-label="${aria}"></i>`;
-          this.copyToClipboard(snippet, 'Snippet acessível copiado');
+          this.copyToClipboard(snippet, 'Accessible snippet copied');
         },
         copyUsage(icon) {
           const aria = this.buildAriaLabel(icon);
           const snippet =
             `<i class="${icon.className}" role="img" aria-label="${aria}" style="font-size: ${this.iconSize}px; color: ${this.iconColor};"></i>`;
-          this.copyToClipboard(snippet, 'Exemplo de uso copiado');
+          this.copyToClipboard(snippet, 'Usage example copied');
         },
         copyToClipboard(value, message) {
           if (!value) return;

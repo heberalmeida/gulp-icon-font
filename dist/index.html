@@ -15,8 +15,12 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="pwa-icon.svg" />
   <link rel="stylesheet" href="iconfont.css" />
+  <link rel="stylesheet" href="iconfont.mask.css" />
   <script src="https://unpkg.com/vue@3.5.13/dist/vue.global.prod.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/fuse.js@7.1.0/dist/fuse.min.js"></script>
   <style>
     :root {
       --bg: #edf2ef;
@@ -404,6 +408,62 @@
       font-size: 12px;
       line-height: 1.45;
       color: var(--muted);
+    }
+
+    .diff-panel { margin-bottom: 4px; }
+    .diff-summary {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 0 0 12px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .diff-summary strong { color: var(--ink); }
+    .diff-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 10px;
+    }
+    .diff-card {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px;
+      background: var(--panel-raised);
+    }
+    .diff-card .label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .diff-pair {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      align-items: center;
+      justify-items: center;
+      min-height: 56px;
+    }
+    .diff-pair img,
+    .diff-pair i {
+      width: 36px;
+      height: 36px;
+      font-size: 36px;
+      color: var(--ink);
+    }
+    .diff-pair span {
+      display: block;
+      font-size: 10px;
+      color: var(--muted);
+      text-align: center;
+    }
+    .diff-id {
+      margin-top: 8px;
+      font-family: var(--mono);
+      font-size: 11px;
+      word-break: break-all;
     }
 
     .main {
@@ -1049,12 +1109,50 @@
         <div class="howto-mini">
           <h2 class="panel-title">Pipeline</h2>
           <p>1. Drop SVGs in <code>icons/svg</code> with optional tags <code>name[a,b].svg</code></p>
-          <p>2. Gulp builds WOFF/WOFF2 + CSS classes <code>swicon-*</code></p>
-          <p>3. Use in HTML and style with <code>font-size</code> / <code>color</code></p>
+          <p>2. Build with <code>swfont build</code> → WOFF/WOFF2 + CSS + mask CSS</p>
+          <p>3. Font: <code>swicon-*</code> · Mask (multi-color): <code>swicon-mask-*</code></p>
         </div>
       </aside>
 
       <main class="main">
+        <section class="panel diff-panel" v-if="hasGlyphDiff" aria-label="Glyph diff">
+          <h2 class="panel-title">Glyph diff</h2>
+          <p class="diff-summary">
+            <span><strong>{{ glyphDiff.added.length }}</strong> added</span>
+            <span><strong>{{ glyphDiff.changed.length }}</strong> changed</span>
+            <span><strong>{{ glyphDiff.removed.length }}</strong> removed</span>
+            <span><strong>{{ glyphDiff.unchanged }}</strong> unchanged</span>
+          </p>
+          <div class="diff-grid">
+            <div class="diff-card" v-for="id in glyphDiff.added" :key="'add-' + id">
+              <div class="label">Added</div>
+              <div class="diff-pair">
+                <div><i :class="'swicon-' + id" aria-hidden="true"></i><span>now</span></div>
+              </div>
+              <div class="diff-id">{{ id }}</div>
+            </div>
+            <div class="diff-card" v-for="id in glyphDiff.changed" :key="'chg-' + id">
+              <div class="label">Changed</div>
+              <div class="diff-pair">
+                <div>
+                  <img :src="'diff/before/' + id + '.svg'" :alt="id + ' before'" width="36" height="36" />
+                  <span>before</span>
+                </div>
+                <div>
+                  <img :src="'svg/' + id + '.svg'" :alt="id + ' after'" width="36" height="36" />
+                  <span>after</span>
+                </div>
+              </div>
+              <div class="diff-id">{{ id }}</div>
+            </div>
+            <div class="diff-card" v-for="id in glyphDiff.removed" :key="'rm-' + id">
+              <div class="label">Removed</div>
+              <div class="diff-pair"><span>{{ id }}</span></div>
+              <div class="diff-id">{{ id }}</div>
+            </div>
+          </div>
+        </section>
+
         <section class="panel toolbar" aria-label="Search">
           <div class="search">
             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -1064,7 +1162,7 @@
             <input
               type="search"
               v-model="search"
-              placeholder="Search by class, tag, or unicode…"
+              placeholder="Fuzzy search class, tag, or unicode…"
               aria-label="Search icons"
               @keydown.stop
             />
@@ -1189,6 +1287,10 @@
           </div>
         </div>
         <div>
+          <div class="panel-title">CSS mask</div>
+          <code>&lt;span class="{{ drawerIcon.className.replace('swicon-', 'swicon-mask-') }}" style="color:#0b7a6c"&gt;&lt;/span&gt;</code>
+        </div>
+        <div>
           <div class="panel-title">Sprite</div>
           <code>&lt;svg&gt;&lt;use href="swfont.sprite.svg#{{ drawerIcon.className }}"&gt;&lt;/use&gt;&lt;/svg&gt;</code>
         </div>
@@ -1199,6 +1301,7 @@
         <button class="btn" type="button" @click="copyAccessible(drawerIcon)">Accessible</button>
         <button class="btn" type="button" @click="copyReact(drawerIcon)">Copy React</button>
         <button class="btn" type="button" @click="copySprite(drawerIcon)">Copy sprite</button>
+        <button class="btn" type="button" @click="copyMask(drawerIcon)">Copy mask</button>
         <button class="btn" type="button" @click="copyUsage(drawerIcon)">Usage</button>
       </div>
     </aside>
@@ -1275,19 +1378,29 @@
         paletteQuery: '',
         paletteIndex: 0,
         themeMedia: null,
-          drawerOpen: false,
-          drawerIcon: null
+        drawerOpen: false,
+        drawerIcon: null,
+        glyphDiff: { added: [], removed: [], changed: [], unchanged: 0, total: 0 },
+        fuse: null
         };
       },
       mounted() {
         this.restorePrefs();
         this.initTheme();
         this.readDeepLink();
+        this.registerPwa();
         window.addEventListener('keydown', this.onGlobalKeydown);
+        fetch('glyph-diff.json')
+          .then((response) => (response.ok ? response.json() : null))
+          .then((data) => {
+            if (data) this.glyphDiff = Object.assign({ added: [], removed: [], changed: [], unchanged: 0, total: 0 }, data);
+          })
+          .catch(() => {});
         fetch('iconfont.json')
           .then((response) => response.json())
           .then((data) => {
             this.icons = Array.isArray(data) ? data : [];
+            this.rebuildFuse();
             this.readDeepLink();
             if (!this.selectedId && this.icons.length) this.selectedId = this.icons[0].id;
             this.writeDeepLink();
@@ -1316,18 +1429,30 @@
         paletteQuery() { this.paletteIndex = 0; }
       },
       computed: {
+        hasGlyphDiff() {
+          const d = this.glyphDiff || {};
+          return (d.added && d.added.length) || (d.changed && d.changed.length) || (d.removed && d.removed.length);
+        },
         filteredIcons() {
-          const query = this.search.trim().toLowerCase();
-          let list = !query ? this.icons.slice() : this.icons.filter((icon) => {
-            const classMatch = icon.className && icon.className.toLowerCase().includes(query);
-            const tagMatch = Array.isArray(icon.tags) && icon.tags.some((tag) => tag.toLowerCase().includes(query));
-            const code = icon.code ? icon.code.toString(16) : '';
-            const codeMatch = code.includes(query.replace('\\u', '').replace(/^u/, ''));
-            return classMatch || tagMatch || codeMatch;
-          });
+          const query = this.search.trim();
+          let list;
+          if (!query) {
+            list = this.icons.slice();
+          } else if (this.fuse) {
+            list = this.fuse.search(query).map((result) => result.item);
+          } else {
+            const q = query.toLowerCase();
+            list = this.icons.filter((icon) => {
+              const classMatch = icon.className && icon.className.toLowerCase().includes(q);
+              const tagMatch = Array.isArray(icon.tags) && icon.tags.some((tag) => tag.toLowerCase().includes(q));
+              const code = icon.code ? icon.code.toString(16) : '';
+              const codeMatch = code.includes(q.replace('\\u', '').replace(/^u/, ''));
+              return classMatch || tagMatch || codeMatch;
+            });
+          }
           if (this.sortBy === 'code') list.sort((a, b) => (a.code || 0) - (b.code || 0));
           else if (this.sortBy === 'tags') list.sort((a, b) => (a.tags || []).join(',').localeCompare((b.tags || []).join(',')));
-          else list.sort((a, b) => a.className.localeCompare(b.className));
+          else if (!query) list.sort((a, b) => a.className.localeCompare(b.className));
           return list;
         },
         selectedIcon() {
@@ -1353,16 +1478,41 @@
           return 'Fail';
         },
         paletteResults() {
-          const query = this.paletteQuery.trim().toLowerCase();
-          const list = !query ? this.icons.slice(0, 12) : this.icons.filter((icon) => {
-            return (icon.className && icon.className.toLowerCase().includes(query))
-              || (icon.id && icon.id.toLowerCase().includes(query))
-              || (Array.isArray(icon.tags) && icon.tags.some((tag) => tag.toLowerCase().includes(query)));
+          const query = this.paletteQuery.trim();
+          if (!query) return this.icons.slice(0, 12);
+          if (this.fuse) return this.fuse.search(query).map((result) => result.item).slice(0, 12);
+          const q = query.toLowerCase();
+          return this.icons.filter((icon) => {
+            return (icon.className && icon.className.toLowerCase().includes(q))
+              || (icon.id && icon.id.toLowerCase().includes(q))
+              || (Array.isArray(icon.tags) && icon.tags.some((tag) => tag.toLowerCase().includes(q)));
           }).slice(0, 12);
-          return list;
         }
       },
       methods: {
+        rebuildFuse() {
+          if (typeof Fuse === 'undefined') {
+            this.fuse = null;
+            return;
+          }
+          this.fuse = new Fuse(this.icons, {
+            keys: [
+              { name: 'className', weight: 0.5 },
+              { name: 'id', weight: 0.3 },
+              { name: 'tags', weight: 0.2 },
+              { name: 'filter', weight: 0.15 }
+            ],
+            threshold: 0.38,
+            ignoreLocation: true,
+            includeScore: true
+          });
+        },
+        registerPwa() {
+          if (!('serviceWorker' in navigator)) return;
+          window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js').catch(() => {});
+          });
+        },
         persistAndSync() {
           localStorage.setItem('iconGallerySize', String(this.iconSize));
           localStorage.setItem('iconGalleryColor', this.iconColor);
@@ -1583,6 +1733,11 @@
           const aria = this.buildAriaLabel(icon);
           const snippet = '<i class="' + icon.className + '" role="img" aria-label="' + aria + '" style="font-size: ' + this.iconSize + 'px; color: ' + this.iconColor + ';"></i>';
           this.copyToClipboard(snippet, 'Usage example copied');
+        },
+        copyMask(icon) {
+          const maskClass = 'swicon-mask-' + icon.id;
+          const snippet = '<span class="' + maskClass + '" style="font-size: ' + this.iconSize + 'px; color: ' + this.iconColor + ';" role="img" aria-label="' + this.buildAriaLabel(icon) + '"></span>';
+          this.copyToClipboard(snippet, 'CSS mask snippet copied');
         },
         copyToClipboard(value, message) {
           if (!value) return;

@@ -71,6 +71,9 @@ Gallery extras:
 - Deep links: `?icon=shield&size=40&color=%230b7a6c`
 - Stable codepoints stored in `icons/codepoints.json`
 - Strict validation: `npx gulp build --strict` (or `yarn build -- --strict`)
+- Export pack: `dist/swfont.zip` (font + CSS + SVG sprite + components)
+- SVG sprite: `dist/swfont.sprite.svg`
+- Tests: `yarn test` (contract) · `yarn test:smoke` (Playwright)
 
 
 ### Use in your project

@@ -29,6 +29,15 @@ jobs:
       - name: Build icon font + gallery
         run: yarn build
 
+      - name: Contract tests
+        run: yarn test
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Gallery smoke tests
+        run: yarn test:smoke
+
       - name: Deploy to gh-pages
         uses: peaceiris/actions-gh-pages@v4
         with:

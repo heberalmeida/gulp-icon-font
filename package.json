@@ -9,7 +9,11 @@
     "dev": "gulp dev",
     "build": "gulp build",
     "watch": "gulp watch-icons",
-    "deploy": "gh-pages -d dist"
+    "deploy": "gh-pages -d dist",
+    "test": "node tests/contract.test.js",
+    "test:contract": "node tests/contract.test.js",
+    "test:update-snapshot": "node tests/contract.test.js --update",
+    "test:smoke": "playwright test"
   },
   "repository": {
     "type": "git",
@@ -28,6 +32,8 @@
     "icons"
   ],
   "devDependencies": {
+    "@playwright/test": "^1.49.0",
+    "archiver": "^7.0.1",
     "browser-sync": "^3.0.2",
     "del": "^6.0.0",
     "gh-pages": "^6.1.1",
@@ -38,6 +44,7 @@
     "gulp-rename": "^2.0.0",
     "lodash": "^4.17.21",
     "node-notifier": "^10.0.0",
+    "playwright": "^1.49.0",
     "through2": "2.0.5",
     "underscore": "^1.13.6"
   }

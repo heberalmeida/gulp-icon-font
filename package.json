@@ -1,11 +1,13 @@
 {
-  "name": "icon-project",
+  "name": "gulp-icon-font",
   "version": "1.0.0",
-  "description": "Projeto de ícones SVG com Gulp",
+  "description": "Gulp pipeline that turns SVG icons into a WOFF/WOFF2 icon font, CSS classes, and an interactive gallery.",
   "main": "gulpfile.js",
   "homepage": "https://heberalmeida.github.io/gulp-icon-font",
   "scripts": {
     "start": "gulp",
+    "dev": "gulp dev",
+    "build": "gulp build",
     "watch": "gulp watch-icons",
     "deploy": "gh-pages -d dist"
   },
@@ -13,21 +15,30 @@
     "type": "git",
     "url": "https://github.com/heberalmeida/gulp-icon-font.git"
   },
-  "author": "Heber Almeida",
+  "author": "Heber Almeida <eu@heber.com.br>",
   "license": "ISC",
-  "dependencies": {
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "gulp",
+    "svg",
+    "icon-font",
+    "woff2",
+    "icons"
+  ],
+  "devDependencies": {
+    "browser-sync": "^3.0.2",
+    "del": "^6.0.0",
+    "gh-pages": "^6.1.1",
     "gulp": "^4.0.2",
     "gulp-consolidate": "^0.2.0",
     "gulp-iconfont": "^10.0.1",
     "gulp-load-plugins": "^2.0.6",
     "gulp-rename": "^2.0.0",
     "lodash": "^4.17.21",
+    "node-notifier": "^10.0.0",
+    "through2": "2.0.5",
     "underscore": "^1.13.6"
-  },
-  "devDependencies": {
-    "browser-sync": "^3.0.2",
-    "del": "^6.0.0",
-    "gh-pages": "^6.1.1",
-    "node-notifier": "^10.0.0"
   }
 }

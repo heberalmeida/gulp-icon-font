@@ -1,97 +1,133 @@
-### Gulp SVG Icons to Font
+# gulp-icon-font
 
-Icon pipeline powered by Gulp: drop SVGs in, get a generated icon font plus an interactive gallery to search, preview, and copy class names.
+Pipeline Gulp que transforma SVGs em **icon font** (WOFF/WOFF2) + CSS + galeria interativa para buscar, pré-visualizar e copiar classes.
+
+**Demo ao vivo:** [https://heberalmeida.github.io/gulp-icon-font/](https://heberalmeida.github.io/gulp-icon-font/)
 
 ---
 
-## Prerequisites
+## Como funciona
 
-- Node.js (tested on v18.19.0)
-- `gulp-cli` installed globally
-
-## Installation
-
-1. Install `gulp-cli`:
-   ```bash
-   npm install -g gulp-cli
-   ```
-2. Install project dependencies:
-   ```bash
-   yarn install
-   ```
-
-## Usage
-
-1. Start the build + watcher:
-   ```bash
-   gulp
-   ```
-2. Add your SVG files to `icons/svg`. The watcher rebuilds the font and refreshes the gallery automatically.
-3. Open the generated preview (auto-opens by default) and search icons by class, tag, or unicode. Use the copy buttons to grab a class name, unicode, accessible snippet, or a ready-to-use HTML/CSS example for your markup. Adjust size and color live with the preview controls or presets, then copy the generated snippet.
-
-### Consume in your project
-
-- Include the generated CSS and font assets from `dist`:
-  ```html
-  <link rel="stylesheet" href="/dist/iconfont.css">
-  ```
-- Use the class pattern `swicon-{file-name}` on an element:
-  ```html
-  <i class="swicon-search" role="img" aria-label="search icon"></i>
-  ```
-- Refer to the live preview for copy-ready snippets and usage examples.
-
-### Quick styling examples
-
-Change size (CSS `font-size`):
-```html
-<i class="swicon-example" style="font-size: 32px;"></i>
+```
+icons/svg/*.svg
+      │
+      ▼
+┌─────────────────┐
+│  1. icontags    │  limpa tags do nome, valida fills, gera metadados
+└────────┬────────┘
+         ▼
+┌─────────────────┐
+│  2. iconfont    │  gulp-iconfont → .woff / .woff2
+└────────┬────────┘
+         ▼
+┌─────────────────┐
+│  3. templates   │  CSS + HTML + iconfont.json em dist/
+└────────┬────────┘
+         ▼
+   BrowserSync / GitHub Pages
 ```
 
-Change color (CSS `color` cascades to the icon font):
-```html
-<i class="swicon-example" style="color: #2563eb;"></i>
+1. **Entrada** — você adiciona SVGs monocromáticos em `icons/svg/`.
+2. **Tags no filename** — `shield[test, new].svg` vira id `shield` com tags `test` e `new` (mais segmentos do nome) para a busca na galeria.
+3. **Geração da font** — `gulp-iconfont` normaliza os glyphs, atribui unicode e emite `swfont.woff` / `swfont.woff2`.
+4. **CSS** — o template `icons/iconfont.css` é preenchido com `@font-face` e classes `swicon-{nome}`.
+5. **Galeria** — `icons/index.html` + `iconfont.json` formam o preview em `dist/` (busca, tema, tamanho/cor, copy-to-clipboard).
+6. **Watch** — `gulp` sobe BrowserSync e reconstrói quando um SVG muda.
+
+> SVGs multicoloridos não funcionam bem como font. O build avisa se detectar vários `fill` no mesmo arquivo.
+
+---
+
+## Pré-requisitos
+
+- Node.js (testado em v18+)
+- `gulp-cli` global
+- Yarn (ou npm)
+
+## Instalação
+
+```bash
+npm install -g gulp-cli
+yarn install
 ```
 
-Combine size and color in a reusable class:
-```html
-<style>
-.icon-primary {
-  font-size: 28px;
-  color: #0ea5e9;
-}
-</style>
+## Uso local
 
-<i class="swicon-example icon-primary" role="img" aria-label="example icon"></i>
+```bash
+gulp          # build + watch + BrowserSync (abre dist/)
+yarn watch    # só o watcher
 ```
 
-## Tagging Your Icons
+Fluxo típico:
 
-Name SVG files with square brackets to attach tags that improve search in the gallery:
+1. Rode `gulp`.
+2. Adicione/edite SVGs em `icons/svg/`.
+3. A galeria atualiza sozinha — busque e copie classes.
+
+### Consumir no seu projeto
+
+```html
+<link rel="stylesheet" href="/caminho/para/dist/iconfont.css" />
+
+<i class="swicon-shield" role="img" aria-label="shield icon"></i>
+```
+
+Tamanho e cor via CSS (`font-size` / `color`):
+
+```html
+<i class="swicon-users" style="font-size: 28px; color: #0f766e;"></i>
+```
+
+### Tags nos SVGs
+
 ```
 icon-name[search, ui].svg
 ```
-Tags are displayed as chips and are used by the gallery filter.
 
-## Live Demo
+As tags viram chips na galeria e entram no filtro de busca.
 
-https://heberalmeida.github.io/gulp-icon-font
+### Manifest opcional
 
-## Project Notes
+```bash
+gulp --manifest
+```
 
-- `gulpfile.js` contains the tasks that compile the SVGs into a font, generate `iconfont.json`, and serve the preview page. Edit only if you intend to change the pipeline.
-- Preview page (`icons/index.html`) now includes enhanced search, copy-to-clipboard buttons, tag chips, result counts, a refreshed layout, light/dark toggle with saved preference, and live size/color presets.
-- The build expects single-color SVGs for reliable font output; multi-color SVGs are not supported. Simplify artwork before adding to `icons/svg`.
-- Run `gulp --manifest` to emit an additional `icon-manifest.json` alongside `iconfont.json` for other pipelines.
-- Each SVG is validated for single-color fills during the build; files with multiple fills emit a warning in the console (kept non-blocking so you can fix progressively). 
+Além de `iconfont.json`, gera `icon-manifest.json` com os mesmos metadados para outros pipelines.
 
-## Ideas for Extensions
+---
 
-- Export additional formats (e.g., SVG sprite or individual React/Vue components) alongside the font.
-- Add linting/validation for SVGs (size, stroke/fill rules) before build.
-- Include accessibility helpers in the preview (ARIA guidance, suggested markup snippets).
-- Publish the generated font package to an internal registry for reuse.
-- Add a "copy accessible snippet" button in the gallery that inserts `role="img"` plus `aria-label` guidance.
-- Provide per-icon usage examples (HTML/CSS) and ready-to-copy code blocks.
-- Add a small CLI flag to emit a JSON manifest of icon metadata for other pipelines.
-- Validate that SVGs are single-color shapes (required for reliable font generation) and warn otherwise. 
+## Deploy (GitHub Pages)
+
+O site estático sai de `dist/`. Com o build atualizado:
+
+```bash
+yarn deploy
+# equivalente: npx gh-pages -d dist
+```
+
+Isso publica a branch `gh-pages`. A URL pública é:
+
+**https://heberalmeida.github.io/gulp-icon-font/**
+
+---
+
+## Estrutura
+
+| Caminho | Função |
+|--------|--------|
+| `icons/svg/` | SVGs de origem (com tags opcionais no nome) |
+| `icons/svg/build/` | SVGs limpos (sem `[tags]`) usados na font |
+| `icons/iconfont.css` | Template Underscore do CSS |
+| `icons/index.html` | Template da galeria |
+| `gulpfile.js` | Tasks: tags → font → CSS/HTML/JSON → serve |
+| `dist/` | Artefatos finais (font, CSS, preview, JSON) |
+
+Prefixo das classes: `swicon-` · Nome da font: `swfont`.
+
+---
+
+## Observações
+
+- Prefira SVGs de um único tom (`fill` único ou `currentColor`).
+- Não edite `dist/` à mão — ele é regenerado pelo Gulp.
+- Ajuste `icons.pref` / `icons.name` no `gulpfile.js` se quiser outro prefixo ou nome de família.

@@ -245,29 +245,30 @@
       height: 148px;
       border-radius: 16px;
       border: 1px solid var(--line);
-      background: var(--preview-bg, linear-gradient(160deg, var(--accent-soft), transparent 55%), var(--panel-raised));
+      /* Background is bound inline from Contrast lab (CSS vars + commas break gradients) */
+      background: #ffffff;
       position: relative;
       overflow: hidden;
+      transition: background 0.2s var(--ease);
     }
 
     .preview-box::before {
       content: "";
       position: absolute;
       inset: 0;
+      pointer-events: none;
       background-image:
-        linear-gradient(var(--line) 1px, transparent 1px),
-        linear-gradient(90deg, var(--line) 1px, transparent 1px);
+        linear-gradient(rgba(16, 25, 22, 0.12) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(16, 25, 22, 0.12) 1px, transparent 1px);
       background-size: 24px 24px;
-      opacity: 0.45;
+      opacity: 0.55;
       mask-image: radial-gradient(circle at center, black, transparent 72%);
     }
 
     .preview-box i {
       position: relative;
       z-index: 1;
-      /* Cap visual size so large slider values don't blow the panel */
-      font-size: min(var(--icon-size), 96px);
-      color: var(--icon-color);
+      /* Size/color come from inline :style so slider/presets always win */
       line-height: 1;
       max-width: 100%;
       max-height: 100%;
@@ -703,9 +704,9 @@
     }
 
     .glyph i {
-      /* Grid keeps a stable size; live Size control only drives preview + snippet */
+      /* Grid keeps a stable size; live Size/Color drive preview + snippet */
       font-size: 40px;
-      color: var(--icon-color);
+      color: var(--icon-color, #101916);
       line-height: 1;
       transition: color 0.2s var(--ease);
     }
@@ -912,8 +913,8 @@
     }
 
     .drawer-preview i {
-      font-size: 72px;
-      color: var(--icon-color);
+      /* Size/color from inline :style (same as sidebar preview) */
+      line-height: 1;
     }
 
     .drawer-preview img,
@@ -946,7 +947,7 @@
     class="app"
     id="iconApp"
     :class="{ compact: density === 'compact' }"
-    :style="{ '--icon-size': iconSize + 'px', '--icon-color': iconColor, '--preview-bg': previewBg }"
+    :style="{ '--icon-size': iconSize + 'px', '--icon-color': iconColor }"
     @keydown="onKeydown"
     tabindex="0"
   >
@@ -973,8 +974,12 @@
     <div class="layout">
       <aside class="panel sidebar" aria-label="Preview settings">
         <h2 class="panel-title">Preview</h2>
-        <div class="preview-box">
-          <i :class="previewClass" aria-hidden="true"></i>
+        <div class="preview-box" :style="{ background: previewBg }">
+          <i
+            :class="previewClass"
+            :style="{ fontSize: iconSize + 'px', color: iconColor }"
+            aria-hidden="true"
+          ></i>
         </div>
         <div class="preview-name">{{ previewClass }}</div>
         <p class="hint">Click a card to select · arrows to move · Enter copies class</p>
@@ -990,10 +995,11 @@
               :class="{ active: previewBg === swatch }"
               :style="{ background: swatch }"
               :aria-label="'Preview background ' + swatch"
-              @click="previewBg = swatch"
+              @click="setPreviewBg(swatch)"
             ></button>
           </div>
           <p class="hint">WCAG contrast vs icon color: <strong>{{ contrastRatio }}</strong> · {{ contrastGrade }}</p>
+          <p class="hint" v-if="contrastAutoNote">{{ contrastAutoNote }}</p>
         </div>
 
         <div class="field">
@@ -1161,7 +1167,11 @@
         <button class="btn tiny" type="button" @click="closeDrawer">Close</button>
       </div>
       <div class="drawer-preview">
-        <i :class="drawerIcon.className" aria-hidden="true"></i>
+        <i
+          :class="drawerIcon.className"
+          :style="{ fontSize: Math.min(iconSize, 72) + 'px', color: iconColor }"
+          aria-hidden="true"
+        ></i>
       </div>
       <div class="drawer-grid">
         <div>
@@ -1252,6 +1262,7 @@
         sortBy: 'name',
         density: 'comfortable',
         previewBg: 'linear-gradient(160deg, #d4f3ec, transparent 55%), #ffffff',
+        contrastAutoNote: '',
         contrastSwatches: [
           'linear-gradient(160deg, #d4f3ec, transparent 55%), #ffffff',
           '#ffffff',
@@ -1289,7 +1300,10 @@
       },
       watch: {
         iconSize() { this.persistAndSync(); },
-        iconColor() { this.persistAndSync(); },
+        iconColor() {
+          if (!this._contrastAuto) this.contrastAutoNote = '';
+          this.persistAndSync();
+        },
         selectedId() { this.writeDeepLink(); },
         search() { this.writeDeepLink(); },
         sortBy(value) { localStorage.setItem('iconGallerySort', value); this.writeDeepLink(); },
@@ -1535,6 +1549,27 @@
           if (this.previewBg.indexOf('#fef3c7') !== -1) return '#fef3c7';
           if (this.previewBg.indexOf('#dbeafe') !== -1) return '#dbeafe';
           return '#ffffff';
+        },
+        setPreviewBg(swatch) {
+          this.previewBg = swatch;
+          this.ensurePreviewContrast();
+        },
+        ensurePreviewContrast() {
+          const bg = this.effectivePreviewColor();
+          const ratio = this.contrastBetween(this.iconColor, bg);
+          if (ratio >= 4.5) {
+            this.contrastAutoNote = '';
+            return;
+          }
+          const next = this.relativeLuminance(bg) < 0.45 ? '#e7f3ee' : '#101916';
+          if (next.toLowerCase() === String(this.iconColor).toLowerCase()) {
+            this.contrastAutoNote = '';
+            return;
+          }
+          this._contrastAuto = true;
+          this.iconColor = next;
+          this.contrastAutoNote = 'Icon color auto-adjusted for readable contrast on this background.';
+          this.$nextTick(() => { this._contrastAuto = false; });
         },
         buildAriaLabel(icon) {
           if (Array.isArray(icon.tags) && icon.tags.length) return (icon.tags[0] + ' icon').trim();
